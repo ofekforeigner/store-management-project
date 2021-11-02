@@ -1,0 +1,76 @@
+<!-- THIS PAGE CONTAINS A FLASK FORM FOR ADDING NEW SUPPLIER -->
+
+{% extends "layout.html" %}
+{% block content %}
+{% if session['isAdmin'] == '1' %}
+<div class="content-section">
+    <form action="" method="POST">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">הוספת ספק</legend>
+            <div class="form-group">
+                {{ form.name.label(class="form-control-label") }}
+                {% if form.name.errors %}
+                {{ form.name(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.name(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.phone.label(class="form-control-label") }}
+
+                {% if form.phone.errors %}
+                {{ form.phone(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.phone.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.phone(class="form-control form-control-lg",type="number", maxlength="10") }}
+                {% endif %}
+            </div>
+              <div class="form-group">
+                {{ form.mail.label(class="form-control-label") }}
+
+                {% if form.mail.errors %}
+                {{ form.mail(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.mail.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.mail(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group p-2" id="center-row">
+            {{ form.submit(class="btn btn-primary")}}
+        </div>
+    </form>
+</div>
+{% else %}
+<div class="alert alert-danger" role="alert" id="center-row">
+    אין לך הרשאה לאיזור זה!
+</div>
+{% endif %}
+<script>
+    $("#submit").on("click", function (e) { // EDIT CATEGORY CONFIRM
+        $a = $(e.target);
+        $name = $("#name").val();
+        $phone = $("#phone").val();
+        strArr = new Array();
+        strArr.push($name);
+        if (charsValidation(strArr)) {
+            alert("הוכנסו תווים לא תקינים");
+            return false;
+        }
+    });
+</script>
+{% endblock content %}

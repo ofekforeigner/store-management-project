@@ -1,0 +1,64 @@
+<!-- THIS PAGE CONTAINS ALL DOWNLOADED REPORTS FROM THE FOLDER 'reports' -->
+
+{% extends "layout.html" %}
+{% block content %}
+{% if session['isAdmin'] == '1' %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+    integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
+    crossorigin="anonymous" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='main.css') }}">
+<script src="{{ url_for('static',filename='functions.js') }}"></script>
+
+<div class="table-wrapper-scroll-y my-custom-scrollbar">
+    <table id="chessboard" class="table table-bordered table-striped mb-0">
+        <thead>
+            <tr>
+                <th scope="col">שם דוח</th>
+
+                <th scope="col">צפייה</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if filenames %}
+            {% for file in filenames %}
+            <tr>
+                <td>{{file}}</td>
+                <td><a class="p-3" id="disp-report" href="{{ url_for('display_report',filename=file) }}"
+                        name={{file}}><img src="../static/Icons/eye.svg" alt="צפה בקובץ" name={{file}}></a>
+                </td>
+            </tr>
+            {% set i=i+1 %}
+            {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+<script>
+    var GlobalId = 0;
+
+    function filesize(elem) { // GET THE SIZE OF THE REPORT FILE
+        document.cookie = `filesize=${elem.files[0].size}`
+    }
+
+    $("a#disp-report").on("click", function (e) { // DISPLAY THE REPORT
+        $a = $(e.target);
+        $reportName = $a.attr('name');
+        e.preventDefault();
+        $.ajax({
+            type: "GET",
+            url: '/display_report/<' + $reportName + '>',
+            data: {
+                'reportName': $reportName,
+            },
+            success: function (response) {
+                downString = response.downloadString;
+            }
+        });
+    });
+</script>
+{% else %}
+<div class="alert alert-danger" role="alert" id="center-row">
+    אין לך הרשאה לאיזור זה!
+</div>
+{% endif %}
+{% endblock content %}

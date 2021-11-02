@@ -1,0 +1,245 @@
+{% extends "layout.html" %}
+{% block content %}
+{% if session['isAdmin'] == '1' %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+    integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
+    crossorigin="anonymous" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='main.css') }}">
+<script src="{{ url_for('static',filename='functions.js') }}"></script>
+
+<div class="table-wrapper-scroll-y my-custom-scrollbar">
+    <table id="chessboard" class="table table-bordered table-striped mb-0">
+        <thead>
+            <tr>
+                <th scope="col">מספר דוח</th>
+                <th scope="col">תיאור דוח</th>
+                <th>הפקה</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in reports_list %}
+            <tr>
+                <td>{{row[0]}}</td>
+                <td>{{row[1]}}</td>
+                {% if session['isAdmin'] == '1' and row[0] == 2 or row[0] == 5 %}
+                <td class="col-3">
+                    <div class="form-group">
+                        <a type="button" id="getReportId" data-toggle="modal" class="btn-sm btn-primary"
+                            name="{{row[0]}}" data-target="#exampleModal">הפקת דו"ח</a>
+                        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">טווח תאריכים</h5>
+                                        <a type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span id="span-close" aria-hidden="true">&times;</span>
+                                        </a>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="form-group">
+                                                מתאריך:
+                                                <input type="date"  class="form-control" id="startDate">
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="form-group">
+                                                עד תאריך:
+                                                <input type="date" class="form-control" id="endDate">
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-dismiss="modal">סגור</button>
+                                        <a id="reportType" type="button" class="btn btn-primary"
+                                            name={{row[0]}}>שמור</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                {% elif session['isAdmin'] == '1' and row[0] == 6  %}
+                <td class="col-3">
+                    <div class="form-group">
+                        <a type="button" id="getReportId" data-toggle="modal" class="btn-sm btn-primary"
+                            name="{{row[0]}}" data-target="#exampleModaltwo">הפקת דו"ח</a>
+                        <div class="modal fade" id="exampleModaltwo" tabindex="-1" role="dialog"
+                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">שם ספק</h5>
+                                        <a type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span id="span-close" aria-hidden="true">&times;</span>
+                                        </a>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="form-group">
+                                                מספר הזמנה:
+                                                <select class="form-control" name="" id="order">
+                                                    {% for order in orders %}
+                                                    <option value="{{ order[0] }}" id="order"> מספר הזמנה:{{ order[0] }}
+                                                        ספק:{{ order[1] }} סוג הזמנה:{{ order[3] }} תאריך
+                                                        הזמנה:{{ order[4] }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-dismiss="modal">סגור</button>
+                                        <a id="saveReportByOrder" type="button" class="btn btn-primary"
+                                            name={{row[0]}}>שמור</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                {% else %}
+                <td><a type="button" class="btn-sm btn-primary" id="otherType" name={{row[0]}}>הפקת דו"ח</a>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-danger" role="alert" id="center-row">
+    אין לך הרשאה לאיזור זה!
+</div>
+{% endif %}
+
+<script>
+    var GlobalId = 0;
+
+    function filesize(elem) { // GET THE SIZE OF THE REPORT FILE
+        document.cookie = `filesize=${elem.files[0].size}`
+    }
+
+    $('#exampleModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this)
+        modal.find('.modal-title').text('עריכת קטגוריה')
+    });
+
+    $("a#getReportId").on("click", function (e) { // ON CLICK 'getReportId' WE GET THE REPORT ID
+        $a = $(e.target);
+        $GlobalId = $a.attr('name');
+    });
+
+    $("#saveReportByOrder").on("click", function (e) { // SAVE THE SELECTED REPORT TO THE reports FOLDER
+        $a = $(e.target);
+        $GlobalId = $a.attr('name');
+        $value = $("#order").val();
+        if (!$value) {
+            alert("אנא בחר הזמנה")
+            return 0;
+        }
+        $.ajax({
+            type: "GET",
+            url: '/download_reports',
+            data: {
+                'id': $GlobalId,
+                'orderId': $value,
+            },
+            success: function (response) {
+                location.reload();
+                downString = response.downloadString;
+                alert("דוח נשמר בהצלחה");
+            }
+        });
+    });
+
+
+
+
+    $("a#reportType").on("click", function (e) { //runs a function after clicking on delete button
+        $a = $(e.target);
+        $userId = $GlobalId;
+        $start = $("#startDate").val();
+        $end = $("#endDate").val();
+
+        if(!$start && $end || $start && !$end ){
+           location.reload();
+            alert("אנא הזן תאריך התחלה וסיום או השאר שדות ריקים להפקת דוח ללא סינון");
+        }
+        $.ajax({
+            type: "GET",
+            url: '/download_reports',
+            data: {
+                'id': $userId,
+                'start': $start,
+                'end': $end,
+            },
+            success: function (response) {
+                location.reload();
+                downString = response.downloadString;
+                alert("דוח נשמר בהצלחה");
+            }
+        });
+    });
+
+    $("a#otherType").on("click", function (e) { //runs a function after clicking on delete button
+        $a = $(e.target);
+        $GlobalId = $a.attr('name');
+        $userId = $GlobalId;
+        $.ajax({
+            type: "GET",
+            url: '/download_reports',
+            data: {
+                'id': $userId,
+            },
+            success: function (response) {
+                location.reload();
+                downString = response.downloadString;
+                alert("דוח נשמר בהצלחה");
+            }
+        });
+    });
+
+    $('#exampleModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this)
+        modal.find('.modal-title').text('הורדת דו"ח')
+    });
+
+
+    $('#exampleModaltwo').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this)
+        modal.find('.modal-title').text('הורדת דו"ח')
+    });
+
+    // $("a#dispReport").on("click", function (e) { //runs a function after clicking on delete button
+    //     $a = $(e.target);
+    //     $reportName = $a.attr('name');
+    //     $.ajax({
+    //         type: "GET",
+    //         url: '/display_report/',
+    //         data: {
+    //             'id': $reportName,
+    //         },
+    //         success: function (response) {
+    //             // location.reload();
+    //             downString = response.downloadString;
+    //         }
+    //     });
+    // });
+</script>
+
+{% endblock content %}

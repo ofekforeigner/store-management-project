@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<config> 
+      <ip>
+		<local>192.168.1.1</local>
+		<port>5005</port>
+     </ip>
+	 
+	 <Alerts>
+		 <Advert>True</Advert>
+		 <Tasks>True</Tasks>
+		 <Items>True</Items>
+		 <ItemsAmountValue>True</ItemsAmountValue>
+		 <ItemsAmount>3</ItemsAmount>
+	 </Alerts>
+
+	  <sound>
+		  <soundValue>True</soundValue>
+	 </sound>
+
+	 <mail>
+		  <email>matanamar165@gmail.com</email>
+		  <pass>MSaEtOaSnQ1Jf4z02ClUkM9C</pass>
+	 </mail>
+
+     <BusinessDetails>
+		  <name>שניצלייה</name>
+		  <address>תל אביב</address>
+		  <Bn>335521</Bn>
+		  <phone>302702089</phone>
+		  <email>matanamar165@gmail.com</email>
+	 </BusinessDetails>
+	
+</config>

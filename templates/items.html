@@ -1,0 +1,345 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<body onload="changeDisplayMode('2')">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+        integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
+        crossorigin="anonymous" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='main.css') }}">
+    <script src="{{ url_for('static',filename='functions.js') }}"></script>
+
+    <div id="search-bar">
+        {% if session['isAdmin'] == '1' %}
+        <ul class="navbar nav ml-auto"
+            style="color:white;background-color:#ededed;width:70%;border-radius: 20px 0px 0px 0px;margin-bottom: 7px;">
+            {% else %}
+            <ul class="navbar nav ml-auto"
+                style="color:white;background-color:#ededed;width:43%;border-radius: 20px 0px 0px 0px;margin-bottom: 7px;">
+                {% endif %}
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                    aria-expanded="false" style="color:black;">
+                    חפש לפי
+                </a>
+                <div id="dropdownSearch" class="dropdown-menu">
+                    <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('1');">מק"ט</a>
+                    <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('2');">שם פריט</a>
+                   <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('3');">כמות</a>
+                       <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('6');">תאריך תפוגה</a>
+                    <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('9');">ספק</a>
+                </div>
+                <li>
+
+                    <input id="myInput" class="form-control
+                form-control-sm mr-3 w-75" type="text" onkeyup="searchByCategoryFunc();" placeholder="חיפוש"
+                        aria-label="חיפוש">
+                </li>
+                <li class="nav-item active">
+                    <a id="itmes_alert" href="{{ url_for('expired_items') }}" class="nav-link" type="button"
+                        style="color:black;background-color:#e2d5d5;border-radius: 20px 20px 20px 20px; ">פגי תוקף <span
+                            class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a id="items_alert" href="{{ url_for('outofstock') }}" class="nav-link" type="button"
+                        style="color:black;background-color:#e2d5d5;border-radius: 20px 20px 20px 20px; ">גמר מלאי <span
+                            class="sr-only">(current)</span></a>
+                </li>
+                {% if session['isAdmin'] == '1' %}
+                <li style="padding-left: 10px; color: black;">
+                    <input type="radio" class="form-check-input" onclick="changeDisplayMode('1');" name="choice"
+                        id="">הצג
+                    הכל
+                </li>
+                <li style="padding-left: 10px; color: black;">
+                    <input type="radio" class="form-check-input" onclick="changeDisplayMode('2');" name="choice" id=""
+                        checked="checked">פעילים
+                </li>
+                <li style="padding-left: 10px; color: black;">
+                    <input type="radio" class="form-check-input" onclick="changeDisplayMode('3');" name="choice"
+                        id="">לא
+                    פעילים
+                </li>
+                {% endif %}
+            </ul>
+
+    </div>
+
+    <div class="table-wrapper-scroll-y my-custom-scrollbar">
+        <table id="chessboard" class="table table-bordered table-striped mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">מק"ט</th>
+                    <th scope="col">שם פריט</th>
+                    <th scope="col">כמות</th>
+                    <th scope="col">מחיר קניה</th>
+                    <th scope="col">מחיר מכירה</th>
+                    <th scope="col">תאריך תפוגה</th>
+                    <th scope="col">קטגוריה</th>
+                    <th scope="col">יחידת מידה</th>
+                    <th scope="col">ספק</th>
+                    {% if session['isAdmin'] == '1' %}
+                    <th><a href="{{ url_for('add_item') }}" title="+פריט" type="button" class="btn-sm btn-primary">הוסף
+                            פריט</a>
+                    </th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in items %}
+                {% if row[10] == 0 %}
+                <tr id="inactive" style="color: rgb(160, 160, 160);">
+                    {% elif row[10] == 1 and row[6] <= exp_date and row[3] > 0 %}
+                <tr id="active" style="color: rgb(214, 83, 83);">
+                    {% elif row[10] == 1 and row[3] == 0 %}
+                <tr id="active" style="color: rgb(51, 146, 255);">
+                    {% else %}
+                <tr id="active">
+                    {% endif %}
+
+                    <td class='d-none' id='ids' name="{{row[0]}}">{{row[0]}}</td>
+                    <td>{{row[1]}}</td>
+                    <td>{{row[2]}}</td>
+                    <td>{{row[3]}}</td>
+                    <td>₪{{row[4]}}</td>
+                    <td>₪{{row[5]}}</td>
+                    <td>{{row[6]}}</td>
+                    <td>{{row[7]}}</td>
+                    <td>{{row[8]}}</td>
+                    <td>{{row[9]}}</td>
+                    {% if session['isAdmin'] == '1' %}
+                    <td class="col-3">
+                        <div class="form-group">
+                            {% if row[10] == 1 %}
+                            <a type="button" id="editBtn" data-toggle="modal" name="{{row[0]}}"
+                                data-target="#exampleModal"><img src="../static/Icons/pencil.svg" alt="ערוך"
+                                    id="editBtn"
+                                    name="{{row[0]}}#{{row[1]}}#{{row[2]}}#{{row[3]}}#{{row[4]}}#{{row[5]}}#{{row[6]}}#{{row[7]}}#{{row[8]}}#{{row[9]}}"></a>
+                            {% else %}
+                            <a type="button" id="disabledEditBtn" data-toggle="modal" name="{{row[0]}}"
+                                data-target="#exampleModal"><img src="../static/Icons/pencil.svg"
+                                    alt="לא ניתן לערוך"></a>
+                            {% endif %}
+                            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+                                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">עריכת פריט</h5>
+                                            <a type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span id="span-close" aria-hidden="true">&times;</span>
+                                            </a>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form>
+                                                <div class="form-group">
+                                                    <label class="col-form-label" style="color:black">שם פריט:</label>
+                                                    <input type="text" class="form-control" id="name">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-form-label" style="color:black">מק"ט:</label>
+                                                    <input type="number" class="form-control" id="barcode">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-form-label" style="color:black">כמות:</label>
+                                                    <input type="number" min=0 step="1.0" class="form-control"
+                                                        id="quantity">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-form-label" style="color:black">מחיר קניה:</label>
+                                                    <input type="number" step="0.1" min=0 class="form-control"
+                                                        id="buyPrice">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-form-label" style="color:black">מחיר מכירה:</label>
+                                                    <input type="number" step="0.1" min=0 class="form-control"
+                                                        id="sellPrice">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-form-label" style="color:black">תאריך תפוגה:</label>
+                                                    <input type="date" onchange="checkDate()" class="form-control"
+                                                        id="expDate">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-form-label" style="color:black">קטגוריה:</label>
+                                                    <select class="form-control" name="" id="categ">
+                                                        {% for x in categories %}
+                                                        <option value="{{ x }}" id="categ">{{ x }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-form-label" style="color:black">יחידת מידה:</label>
+                                                    <select class="form-control" name="" id="mUnit">
+                                                        {% for x in m_units %}
+                                                        <option value="{{ x }}" id="mUnit">{{ x }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-form-label" style="color:black">ספק:</label>
+                                                    <select class="form-control" name="" id="supplier">
+                                                        {% for x in suppliers %}
+                                                        <option value="{{ x }}" id="supplier">{{ x }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-dismiss="modal">סגור</button>
+                                            <a id="editConfirm" type="button" class="btn btn-primary"
+                                                data-dismiss="modal">שמור</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if row[10] == 1 %}
+                            <a id="status{{row[0]}}" type="button" name="{{row[0]}}" onclick="changeStatus(this);"><img
+                                    id="status-img-{{row[0]}}" src="../static/Icons/green-circle.svg"
+                                    style="height: 10px; margin-right: 25px;" alt="פעיל" title="פעיל"> פעיל</a>
+                            {% else %}
+                            <a id="status{{row[0]}}" type="button" name="{{row[0]}}" onclick="changeStatus(this);"><img
+                                    id="status-img-{{row[0]}}" src="../static/Icons/red-circle.svg"
+                                    style="height: 10px; margin-right: 25px;" alt="לא פעיל" title="לא פעיל"> לא פעיל</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+<script>
+    var GlobalId = 0;
+
+    function checkDate() { // CHECK IF THE DATE WE CHOSE IS VALID, GREATER THAN TODAY AND NOT IN THE PAST
+        var selectedText = document.getElementById('expDate').value;
+        var selectedDate = new Date(selectedText);
+        var now = new Date();
+        if (selectedDate < now) {
+            alert("התאריך עבר, הזן תאריך תקין");
+            $('#expDate').val(now);
+        }
+    }
+
+    $("a#editBtn").on("click", function (
+        e
+    ) { // ON CLICK 'editBtn' WE SET THE NAME, BARCODE, QTY, BUY PRICE, SELL PRICE, SUPPLIER, EXP DATE, CATEGOTY AND MEASURMENT UNIT
+        $a = $(e.target);
+        $GlobalId = $a.attr('name');
+        $item_details = $GlobalId.split("#");
+        $("#name").val($item_details[2]);
+        $("#barcode").val($item_details[1]);
+        $("#quantity").val($item_details[3]);
+        $("#buyPrice").val($item_details[4]);
+        $("#sellPrice").val($item_details[5]);
+        $("#supplier").val($item_details[9]);
+        $("#expDate").val($item_details[6]);
+        $("#categ").val($item_details[7]);
+        $("#mUnit").val($item_details[8]);
+    });
+
+    $("a#editConfirm").on("click", function (e) { // EDIT CONFIRM
+        $a = $(e.target);
+        $userId = $GlobalId.split("#")[0];
+        $name = $("#name").val();
+        $barcode = $("#barcode").val();
+        $quantity = $("#quantity").val();
+        $buyPrice = $("#buyPrice").val();
+        $sellPrice = $("#sellPrice").val();
+        $suppiler = $("#supplier").val();
+        $experationDate = $("#expDate").val();
+        $category = $("#categ").val();
+        $unitOfMeasurment = $("#mUnit").val();
+        if (checkIfExsists($name,$userId)){
+            alert('לא ניתן לערוך, שם פריט קיים במערכת');
+            return false;
+        }
+        if (!$name || !$barcode || !$quantity || !$buyPrice || !$sellPrice || !$experationDate) {
+            alert("אנא הכנס את כל הנתונים");
+            return false;
+        }
+        strArr = new Array();
+        numArr = new Array();
+        strArr.push($name);
+        numArr.push($barcode, $quantity, $buyPrice, $sellPrice);
+        if (charsValidation(strArr) || validateNumbers(numArr)) {
+            alert("הוכנסו תווים לא תקינים");
+            return false;
+        }
+        $.ajax({
+            type: "GET",
+            url: '/edit_item',
+            data: {
+                'id': $userId,
+                'name': $name,
+                'barcode': $barcode,
+                'quantity': $quantity,
+                'buyPrice': $buyPrice,
+                'sellPrice': $sellPrice,
+                'supplier': $suppiler,
+                'experationDate': $experationDate,
+                'category': $category,
+                'unitOfMeasurment': $unitOfMeasurment
+            },
+            success: function (response) {
+                $("#display_alert").attr("class", "alert alert-success").html(
+                    "פריט נערך בהצלחה");
+                setTimeout(function () {
+                    location.reload(true);
+                }, 1100);
+            }
+        });
+    });
+
+    $('#exampleModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget)
+        var modal = $(this)
+        modal.find('.modal-title').text('עריכת פריט')
+    });
+
+    function changeStatus(me) { // CHANGE THE STATUS TO ACTIVE/INACTIVE
+        attrName = $(me).attr("name");
+        var status = 1;
+        if (confirm("אתה בטוח שברצונך לשנות סטאטוס?")) {
+            if ($("#status-img-" + attrName).attr("title") == 'פעיל') {
+                $("#status-img-" + attrName).attr("src", "../static/Icons/red-circle.svg");
+                $("#status-img-" + attrName).attr("alt", "לא פעיל");
+                $("#status-img-" + attrName).attr("title", "לא פעיל");
+                status = 0
+            } else {
+                $("#status-img-" + attrName).attr("src", "../static/Icons/green-circle.svg");
+                $("#status-img-" + attrName).attr("alt", "פעיל");
+                $("#status-img-" + attrName).attr("title", "פעיל");
+            }
+            $.ajax({
+                type: "GET",
+                url: '/change_item_status',
+                data: {
+                    'id': attrName,
+                    'status': status,
+                },
+                success: function (response) {
+                    downString = response.downloadString;
+                    alert("סטאטוס שונה בהצלחה");
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    $("a#disabledEditBtn").on("click", function (e) { // DISABLE THE EDIT BUTTON IF THE ITEM IS INACTIVE
+        $a = $(e.target);
+        alert("הפוך סטאטוס לפעיל על מנת לערוך");
+        return false;
+    });
+
+    $("a#getSearchCategory").on("click", function (e) { // SET THE SELECTED SEARCH CATEGORY AS A PLACEHOLDER
+        $a = $(e.target);
+        $("#myInput").attr("placeholder", $a.html());
+    });
+</script>
+
+{% endblock content %}

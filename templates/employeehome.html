@@ -1,0 +1,113 @@
+<!-- THIS PAGE IS THE HOME PAGE OF AN EMPLOYEE  -->
+
+{% extends "layout.html" %}
+{% block content %}
+
+<div style="display: flex;">
+  <div class="col-md-4 p-2">
+    <legend class="border-bottom mb-4">פגי תוקף:<a style="float: left; font-size: medium;"
+        href="{{ url_for('expired_items') }}">הצג הכל</a></legend>
+    <div class="content-section card border-left-primary shadow py-2" style="height: 400px; overflow: auto;">
+      <p class='text-muted'>
+        {% for alert in itemsAlert %}
+        {% if alert and items_value %}
+        <div id="itemData">
+          <h6 class="card-title">שם הפריט: {{alert[2]}}</h6>
+          <p class="card-text mb-2">מק"ט: {{alert[1]}}</p>
+          <p class="card-text border-bottom mb-4">ספק: {{alert[9]}}</p>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </p>
+    </div>
+  </div>
+  <div class="col-md-4 p-2">
+    <legend class="border-bottom mb-4">גמר מלאי:<a style="float: left; font-size: medium;"
+        href="{{ url_for('outofstock') }}">הצג הכל</a></legend>
+    <div class="content-section card border-left-primary shadow py-2" style="height: 400px; overflow: auto;">
+      <p class='text-muted'>
+        {% for alert in items_amount %}
+        {% if alert and items_amount_alert %}
+        <div id="oosItemData">
+          <h6 class="card-title" id="oosItem" name="{{alert[9]}}">שם הפריט: {{alert[2]}}</h6>
+          <p class="card-text" style="height: 10px;">מק"ט: {{alert[1]}}</p>
+          <p class="card-text" style="height: 10px;">כמות במלאי: {{alert[3]}}</p>
+          <p class="card-text border-bottom mb-4">ספק: {{alert[9]}}</p>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </p>
+    </div>
+  </div>
+
+  <div class="col-md-4 p-2">
+    <legend class="border-bottom mb-4">משימות:<a style="float: left; font-size: medium;"
+        href="{{ url_for('tasks') }}">הצג הכל</a></legend>
+    <div class="content-section card border-left-primary shadow py-2" style="height: 400px; overflow: auto;">
+      <p class='text-muted'>
+        {% for task in tasks %}
+        {% if task[1] == logged_user %}
+        <!--runing in task and show this tasks-->
+        <!--check if have any task with date pass and the setting in on to show passed date-->
+        <div class="card" id="cardClose{{task[0]}}">
+          {% if task[4] %}
+          <!--check task complete to give green color-->
+          <h6 id="cardCompleteEmployeeHome{{task[0]}}" name="cardClose{{task[0]}}" class="card-header alert-success">
+            תזכורת {{task[3]}}
+          </h6>
+          {% else %}
+          <h6 id="cardCompleteEmployeeHome{{task[0]}}" class="card-header alert-danger"> תזכורת {{task[3]}}
+          </h6>
+          {% endif %}
+          <div class="card-body">
+            <p class="card-title">{{task[2]}}<a id="cardCompleteEmployeeHome" type="button" title="בוצע"><img
+                  src="../static/Icons/check.svg" alt="בוצע" name="cardCompleteEmployeeHome#{{task[0]}}"></a></p>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+  let index = 0;
+  setInterval(function () { // DISPLAY THE ADVERTS
+    display_Advert();
+  }, 3000);
+
+  function display_Advert() {
+    var photos = [
+      "{{url_for('static',filename='1.jpg')}}"
+    ];
+
+    if (index == 1) index = 0;
+    document.getElementById("pics").src = photos[index++];
+  }
+
+
+  $("a#cardCompleteEmployeeHome").on("click", function (e) { // ON CLICK 'V' ON TASK WE CHNAGE THE TASK TO COMPLETE
+    $a = $(e.target);
+    $GlobalId = $a.attr('name').split("#")[1];
+    if (confirm(
+        "האם המשימה הושלמה?"
+      )) {
+      $.ajax({
+        url: "/completeTask",
+        type: "get",
+        data: {
+          'id': $GlobalId
+        },
+        success: function (response) {
+          $("#display_alert").attr("class", "alert alert-success").html(
+            "משימה הושלמה בהצלחה");
+          setTimeout(function () {
+            location.reload(true);
+          }, 1100);
+        }
+      });
+    }
+  });
+</script>
+{% endblock content %}

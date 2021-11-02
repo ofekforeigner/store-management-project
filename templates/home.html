@@ -1,0 +1,468 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<script src="{{ url_for('static',filename='functions.js') }}"></script>
+
+<div style="display: flex;">
+  <div class="p-2">
+    <ul class="navbar-nav accordion card border-left-primary shadow py-2" id="accordionSidebar" style="
+    width: min-content;
+    margin-right: -20px;
+    padding-left: 15px; background: rgb(161 188 229 / 25%);">
+
+      <!-- Sidebar - Brand -->
+      <h5 class=" sidebar-brand d-flex align-items-center justify-content-center">
+        <div class="sidebar-brand-text mx-3">ניהול</div>
+        <img src="../static/Icons/chart-pie.svg" alt="" srcset="">
+      </h5>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider my-0">
+
+      <a type="button" class="nav-link" data-toggle="modal" data-target="#exampleModal4" style>משתמשים מחוברים</a>
+      <div class="modal fade" id="exampleModal4" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">משתמשים מחוברים</h5>
+              <a type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span id="span-close" aria-hidden="true">&times;</span>
+              </a>
+            </div>
+            <div class="modal-body">
+              <form>
+                <div class="form-group">
+                  <table class="table">
+                    <tbody>
+                      {% for name in users %}
+                      <tr>
+                        <td>
+                          <a><img src="/static/Icons/green-circle.svg" height="9px" width="32px">{{name}}</a>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="sidebar-divider my-0">
+      <!-- Nav Item - Dashboard -->
+      <li class="nav-item active">
+        <a class="nav-link" href="{{ url_for('orders') }}">
+          <span>צור הזמנה</span></a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="{{ url_for('mail') }}">
+          <span>שלח מייל</span></a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="{{ url_for('add_item') }}">
+          <span>הוסף פריט</span></a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="{{ url_for('add_employee') }}">
+          <span>הוסף עובד</span></a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="{{ url_for('add_contact') }}">
+          <span>הוסף א.קשר</span></a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="{{ url_for('add_supplier') }}">
+          <span>הוסף ספק</span></a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="{{ url_for('add_task') }}">
+          <span>הוסף משימה</span></a>
+      </li>
+      <hr class="sidebar-divider d-none d-md-block">
+      {% if business %}
+      <li class="nav-item active">
+        <th>
+          <a type="button" class="nav-link" data-toggle="modal" data-target="#exampleModal">פרטי העסק</a>
+          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">פרטי העסק</h5>
+                  <a type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span id="span-close" aria-hidden="true">&times;</span>
+                  </a>
+                </div>
+                <div class="modal-body">
+                  <form>
+                    <div class="form-group">
+                      <p class="card-title"><strong>שם העסק: </strong>{{business[0]}}</p>
+                      <p class="card-title"><strong>כתובת: </strong>{{business[1]}}</p>
+                      <p class="card-title"><strong>ח.פ: </strong>{{business[2]}}</p>
+                      <p class="card-title"><strong>טלפון: </strong>{{business[3]}}</p>
+                      <p class="card-title"><strong>מייל: </strong>{{business[4]}}</p>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </th>
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+
+  <div>
+    <div style="display: flex;">
+      <div class="col-md-5 mb-4 p-2">
+        <div class="card border-left-primary shadow h-100 py-2">
+          <div class="card-body">
+            <div class="row no-gutters align-items-center">
+              <div class="col mr-2">
+                <div class="text-xs font-weight-bold mb-1" style="color: #73cc42;">
+                עובדים (פעילים)</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_users }}</div>
+              </div>
+              <div class="col-auto">
+                <img src="../static/Icons/group.png" alt="" style="opacity: 15%; color: gray; height: 70px;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-5 mb-4 p-2">
+        <div class="card border-left-success shadow h-100 py-2">
+          <div class="card-body">
+            <div class="row no-gutters align-items-center">
+              <div class="col mr-2">
+                <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #d76969!important">
+                  הזמנות (ממתינות)</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ checked_orders }}</div>
+              </div>
+              <div class="col-auto">
+                <img src="../static/Icons/cargo.png" alt="" style="opacity: 15%; color: gray; height: 70px;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-5 mb-4 p-2">
+        <div class="card border-left-info shadow h-100 py-2">
+          <div class="card-body">
+            <div class="row no-gutters align-items-center">
+              <div class="col mr-2">
+                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">משימות
+                </div>
+                <div class="row no-gutters align-items-center">
+                  <div class="col-auto">
+                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ct[0]}}/{{ct[1]}}</div>
+                  </div>
+                  <div class="col">
+                    <div class="progress progress-sm mr-2">
+                      <div class="progress-bar bg-info" role="progressbar" style="width: {{ct[2]}}%"
+                        aria-valuenow="{{ct[2]}}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-auto">
+                <img src="../static/Icons/clipboard.png" style="opacity: 15%; color: gray; height: 70px;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display: flex;">
+      <div class="col-md-5 p-2">
+        <legend class="border-bottom mb-4">פגי תוקף:<a style="float: left; font-size: medium;"
+            href="{{ url_for('expired_items') }}">הצג הכל</a></legend>
+        <div class="content-section card border-left-primary shadow py-2" style="height: 400px; overflow: auto;">
+          <p class='text-muted'>
+
+            {% for alert in itemsAlert %}
+            {% if alert and items_value %}
+            <div id="itemData">
+              <h6 class="card-title" id="expItem" name="{{alert[9]}}" id="expCheckbox" style="font-size:smaller"><input type="checkbox"
+                  value="{{alert[1]}}#{{alert[0]}}" name="{{alert[9]}}" onclick="expiredOnCheck();" id="expCheckbox">שם
+                הפריט:
+                {{alert[2]}}</h6>
+              <p style="font-size:smaller" class="card-text mb-2">מק"ט: {{alert[1]}}</p>
+              <p style="font-size:smaller" class="card-text mb-2">תאריך תפוגה: {{alert[6]}}</p>
+              <p style="font-size:smaller" id="returnSupplierName" name="{{alert[9]}}" class="card-text border-bottom mb-4">ספק: {{alert[9]}}</p>
+
+            </div>
+            {% endif %}
+            {% endfor %}
+          </p>
+        </div>
+        <div id="expButtons" style="display: none;">
+          <a type="button" id="createOrder" class="btn-sm btn-primary" data-toggle="modal"
+            data-target="#exampleModal2">צור
+            הזמנה</a>
+          <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">צור הזמנה</h5>
+                  <a type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span id="span-close" aria-hidden="true">&times;</span>
+                  </a>
+                </div>
+                <div class="modal-body">
+                  <form>
+                    <div class="form-group">
+                      <label class="col-form-label">ספק:</label>
+                      <select class="form-control" id="orderSupplier">
+                        <option id="supplierOption"></option required>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-form-label">תאריך הזמנה:</label>
+                      <input type="date" class="form-control" onchange="checkDate()" id="orderDate" required>
+                    </div>
+                    <label class="col-form-label">סוג הזמנה:</label>
+                    <input class="form-control" name="" id="orderType" value="החזרת סחורה לספק" maxlength=0 required>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">סגור</button>
+                  <a id="addExpiredItemsOrderConfirm" type="button" class="btn btn-primary"
+                    data-dismiss="modal">שמור</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-5 p-2">
+        <legend class="border-bottom mb-4">גמר מלאי:<a style="float: left; font-size: medium;"
+            href="{{ url_for('outofstock') }}">הצג הכל</a></legend>
+        <div class="content-section card border-left-primary shadow py-2" style="height: 400px; overflow: auto;">
+          <p class='text-muted'>
+            {% for alert in items_amount %}
+            {% if alert and items_amount_alert %}
+            <div id="oosItemData">
+              <h6 style="font-size:smaller" class="card-title" id="oosItem" name="{{alert[9]}}"><input type="checkbox"
+                  value="{{alert[1]}}#{{alert[0]}}" name="{{alert[9]}}" onclick="outOfStockOnCheck();"
+                  id="outOfStockCheckbox">שם הפריט: {{alert[2]}}</h6>
+              <p style="font-size:smaller" class=" mb-2">מק"ט: {{alert[1]}}</p>
+              <p style="font-size:smaller" class="card-text mb-2">כמות במלאי: {{alert[3]}}</p>
+              <p style="font-size:smaller" class="card-text border-bottom mb-4">ספק: {{alert[9]}}</p>
+            </div>
+            {% endif %}
+            {% endfor %}
+          </p>
+        </div>
+        <div id="outOfStockButtons" style="display: none;">
+          <a type="button" id="createOrder" class="btn-sm btn-primary" data-toggle="modal"
+            data-target="#exampleModal3">צור
+            הזמנה</a>
+          <div class="modal fade" id="exampleModal3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel3"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel3">צור הזמנה</h5>
+                  <a type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span id="span-close" aria-hidden="true">&times;</span>
+                  </a>
+                </div>
+                <div class="modal-body">
+                  <form>
+                    <div class="form-group">
+                      <label class="col-form-label">ספק:</label>
+                      <select class="form-control" id="oosOrderSupplier">
+                        <option id="oosSupplierOption"></option required>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-form-label">כמות:</label>
+                      <input class="form-control" id="quantity" type="number" min=0 required>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-form-label">תאריך הזמנה:</label>
+                      <input type="date" class="form-control" onchange="checkDate()" id="oosOrderDate" required>
+                    </div>
+                    <label class="col-form-label">סוג הזמנה:</label>
+                    <input class="form-control" id="oosOrderType" value="הזמנה מספק" maxlength=0 required>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">סגור</button>
+                  <a id="addOutOfStockOrderConfirm" type="button" class="btn btn-primary" data-dismiss="modal">שמור</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-5 p-2">
+        <legend class="border-bottom mb-4">תזכורות:<a style="float: left; font-size: medium;"
+            href="{{ url_for('tasks') }}">הצג הכל</a></legend>
+        <div class="content-section card border-left-primary shadow py-2" style="height: 400px; overflow: auto;">
+          <p class='text-muted'>
+            {% for alert in taskAlert %}
+            <!--runing in task and show this tasks-->
+            {% if alert and alert_value %}
+            <!--check if have any task with date pass and the setting in on to show passed date-->
+            <div class="card" id="cardClose{{alert[0]}}" style="width: 220px" >
+              {% if alert[4] %}
+              <!--check task complete to give green color-->
+              <h6 id="cardComplete{{alert[0]}}" name="cardClose{{alert[0]}}" class="card-header alert-success">משימה ל: {{alert[1]}} <a type="button" title="סגור" id="cardClose"><img src="../static/Icons/x.svg" alt="סגור" name="cardClose{{alert[0]}}"></a>
+              </h6>
+              {% else %}
+              <h6 id="cardComplete{{alert[0]}}" class="card-header alert-danger">משימה ל: {{alert[1]}}<a type="button"
+                  id="cardClose" title="סגור"><img src="../static/Icons/x.svg" alt="סגור"
+                    name="cardClose{{alert[0]}}"></a></h6>
+              {% endif %}
+
+              {% if alert[4] %}
+              <div class="card-body">
+                <p class="card-title">{{alert[2]}}<a id="cardComplete" type="button" title="בוצע"><img
+                      src="../static/Icons/check.svg" alt="בוצע" name="cardComplete{{alert[0]}}"></a></p>
+              </div>
+              {% else %}
+                <div class="card-body">
+                <p class="card-title">{{alert[2]}}<br><a id="cardComplete" type="button" title="בוצע" ><img
+                      src="../static/Icons/check.svg" alt="בוצע" name="cardComplete{{alert[0]}}"></a>עד לתאריך:  {{alert[3]}}</p>
+              </div>
+
+              {% endif %}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if advert %}
+  <div class="col-md-2 mb-4 p-2" style="margin-right: 175px;">
+    <div class="card border-left-success shadow">
+      <div class="card-body" style="padding: 5px;">
+        <div class="row no-gutters align-items-center">
+          <img id="ads" src="../static/1.png" alt="adverts">
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+  let index = 0;
+  window.onload = function () { // ON PAGE LOAD WE SEE A SLIDE OF ADVERTS
+    var image = document.getElementById("ads");
+    var img_array = ["../static/2.jpg", "../static/3.jpg", "../static/1.png"];
+    var index = 0;
+    var interval = 3000;
+
+    function slide() {
+      image.src = img_array[index++ % img_array.length];
+    }
+    setInterval(slide, interval);
+  }
+
+  function checkDate() { // CHECK IF THE DATE WE CHOSE IS VALID, NOT IN THE PAST
+    var selectedoOosText = document.getElementById('oosOrderDate').value;
+    var selectedExpText = document.getElementById('orderDate').value;
+    var selectedOosDate = new Date(selectedoOosText);
+    var selectedExpDate = new Date(selectedExpText);
+    var now = new Date();
+    now.setHours(0, 0, 0, 0);
+    if (selectedOosDate < now || selectedExpDate < now) {
+      alert("התאריך עבר, הזן תאריך תקין");
+      $('#oosOrderDate').val(now);
+      $('#orderDate').val(now);
+    }
+  }
+
+  function get_selected_exp_checkboxes_array() { // GET SELECTED EXPIRED ITEMS TO AN ARRAY
+    var ch_list = Array();
+    $("input:checkbox[id=expCheckbox]:checked").each(function () {
+      ch_list.push($(this).val());
+    });
+    return ch_list;
+  }
+
+  function get_selected_oos_checkboxes_array() { // GET SELECTED OUT OF STOCK ITEMS TO AN ARRAY
+    var ch_list = Array();
+    $("input:checkbox[id=outOfStockCheckbox]:checked").each(function () {
+      ch_list.push($(this).val());
+    });
+    return ch_list;
+  }
+
+  $("a#createOrder").on("click", function (e) { // CREATE A NEW ORDER WITH THE SELECTED ITEMS
+    $a = $(e.target);
+    $expiredItemsSupplierName = $("#expCheckbox:checked").attr("name");
+    $outOfStockItemsSupplierName = $("#outOfStockCheckbox:checked").attr("name");
+    $("#supplierOption").html($expiredItemsSupplierName);
+    $("#oosSupplierOption").html($outOfStockItemsSupplierName);
+  });
+
+  $("a#addExpiredItemsOrderConfirm").on("click", function (e) { // ADD THE SELECTED EXPIRED ITEMS TO ORDER 
+    $a = $(e.target);
+    $sname = $("#orderSupplier").val();
+    $date = $("#orderDate").val();
+    $type = $("#orderType").val();
+    $item_data = get_selected_exp_checkboxes_array();
+    $.ajax({
+      type: "GET",
+      url: '/add_expired_items_order_from_home_page',
+      data: {
+        'item_data[]': $item_data,
+        'supplier_name': $sname,
+        'date': $date,
+        'type': $type
+      },
+      success: function (response) {
+        $("#display_alert").attr("class", "alert alert-success").html(
+          "הזמנה נוספה בהצלחה");
+        setTimeout(function () {
+          location.reload(true);
+        }, 1100);
+      }
+    });
+  });
+
+  $("a#addOutOfStockOrderConfirm").on("click", function (e) { // ADD THE SELECTED OUT OF STOCK ITEMS TO ORDER 
+    $a = $(e.target);
+    $sname = $("#oosOrderSupplier").val();
+    $date = $("#oosOrderDate").val();
+    $type = $("#oosOrderType").val();
+    $quantity = $("#quantity").val();
+    $item_data = get_selected_oos_checkboxes_array();
+    $.ajax({
+      type: "GET",
+      url: '/add_out_of_stock_order_from_home_page',
+      data: {
+        'item_data[]': $item_data,
+        'supplier_name': $sname,
+        'date': $date,
+        'type': $type,
+        'quantity': $quantity
+      },
+      success: function (response) {
+        $("#display_alert").attr("class", "alert alert-success").html(
+          "הזמנה נוספה בהצלחה");
+        setTimeout(function () {
+          location.reload(true);
+        }, 1100);
+      }
+    });
+  });
+
+  $("a#getSearchCategory").on("click", function (e) { // SET THE SELECTED SEARCH CATEGORY AS A PLACEHOLDER
+    $a = $(e.target);
+    $("#myInput").attr("placeholder", $a.html());
+  });
+</script>
+{% endblock content %}

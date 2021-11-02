@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+    integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
+    crossorigin="anonymous" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='main.css') }}">
+<script src="{{ url_for('static',filename='functions.js') }}"></script>
+
+<div id="search-bar">
+    <ul class="navbar nav ml-auto"
+        style="color:white;background-color:#ededed;width:63%;border-radius: 20px 0px 0px 0px;margin-bottom: 7px;">
+
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+            aria-expanded="false" style="color:black;">
+            חפש לפי
+        </a>
+        <div id="dropdownSearch" class="dropdown-menu">
+            <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('1');">שם פריט</a>
+            <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('2');">ברקוד</a>
+            <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('6');">ספק</a>
+        </div>
+        <li>
+
+            <input id="myInput" class="form-control
+                form-control-sm mr-3 w-75" type="text" onkeyup="searchByCategoryFunc();" placeholder="חיפוש"
+                aria-label="חיפוש">
+        </li>
+
+        </li>
+
+        <li class="nav-item active">
+            <a href="{{ url_for('items') }}" class="nav-link" type="button"
+                style="color:black;background-color:#ededed; ">פריטים <span class="sr-only">(current)</span></a>
+        </li>
+
+        <li class="nav-item active">
+            <a href="{{ url_for('orders') }}" class="nav-link" type="button"
+                style="color:black;background-color:#ededed; ">הזמנות <span class="sr-only">(current)</span></a>
+        </li>
+
+        <li class="nav-item active">
+            <a id="itmes_alert" href="{{ url_for('outofstock') }}" class="nav-link" type="button"
+                style="color:black;background-color:#e2d5d5;border-radius: 20px 20px 20px 20px; ">גמר מלאי <span
+                    class="sr-only">(current)</span></a>
+        </li>
+
+        <li>
+    </ul>
+
+</div>
+
+<div class="table-wrapper-scroll-y my-custom-scrollbar">
+    <table id="chessboard" class="table table-bordered table-striped mb-0">
+        <thead>
+            <tr>
+                <th scope="col">שם פריט</th>
+                <th scope="col">מק"ט</th>
+                <th scope="col">כמות</th>
+                <th scope="col">מחיר קנייה</th>
+                <th scope="col">מחיר מכירה</th>
+                <th scope="col">תאריך תפוגה</th>
+                <th scope="col">קטגוריה</th>
+                <th scope="col">יחידת מידה</th>
+                <th scope="col">ספק</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in items %}
+            <tr>
+                <td>{{row[2]}}</td>
+                <td>{{row[1]}}</td>
+                <td>{{row[3]}}</td>
+                <td>{{row[4]}}</td>
+                <td>{{row[5]}}</td>
+                <td>{{row[6]}}</td>
+                <td>{{row[7]}}</td>
+                <td>{{row[8]}}</td>
+                <td>{{row[9]}}</td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+    <script>
+        var GlobalId = 0;
+
+        $("a#getSearchCategory").on("click", function (e) { // SET THE SELECTED SEARCH CATEGORY AS A PLACEHOLDER
+            $a = $(e.target);
+            $("#myInput").attr("placeholder", $a.html());
+        });
+    </script>
+
+    {% endblock content %}

@@ -1,0 +1,107 @@
+<!-- THIS PAGE CONTAINS A FLASK FORM FOR ADDING NEW EMPLOYEE -->
+
+{% extends "layout.html" %}
+{% block content %}
+{% if session['isAdmin'] == '1' %}
+<div class="content-section">
+    <form action="" method="POST">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">הוספת עובד</legend>
+            <div class="form-group p-2">
+                {{ form.name.label(class="form-control-label") }}
+
+                {% if form.name.errors %}
+                {{ form.name(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.name(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            <div class="form-group p-2">
+                {{ form.username.label(class="form-control-label") }}
+
+                {% if form.username.errors %}
+                {{ form.username(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.username.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.username(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            <div class="form-group p-2">
+                {{ form.password.label(class="form-control-label") }}
+
+                {% if form.password.errors %}
+                {{ form.password(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.password.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.password(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            <div class="form-group p-2">
+                {{ form.confirm_password.label(class="form-control-label") }}
+
+                {% if form.confirm_password.errors %}
+                {{ form.confirm_password(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.confirm_password.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.confirm_password(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            <div class="form-group p-2">
+                {{ form.isAdmin.label(class="form-control-label") }}
+
+                {% if form.isAdmin.errors %}
+                {{ form.isAdmin(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.isAdmin.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.isAdmin(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group p-2" id="center-row">
+            {{ form.submit(class="btn btn-primary" )}}
+        </div>
+    </form>
+</div>
+{% else %}
+<div class="alert alert-danger" role="alert" id="center-row">
+    אין לך הרשאה לאיזור זה!
+</div>
+{% endif %}
+
+<script>
+    $("#submit").on("click", function (e) {
+        $a = $(e.target);
+        $name = $("#name").val();
+        $username = $("#username").val();
+
+        strArr = new Array();
+        strArr.push($name, $username);
+        if (charsValidation(strArr)) {
+            alert("הוכנסו תווים לא תקינים");
+            return false;
+        }
+    });
+</script>
+{% endblock content %}

@@ -1,0 +1,275 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<body onload="changeDisplayMode('2')">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+        integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
+        crossorigin="anonymous" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='main.css') }}">
+    <script src="{{ url_for('static',filename='functions.js') }}"></script>
+    <div id="search-bar">
+        {% if session['isAdmin'] == '1' %}
+        <ul class="navbar nav ml-auto"
+            style="color:white;background-color:#ededed;width:60%;border-radius: 20px 0px 0px 0px;margin-bottom: 7px;">
+            {% else %}
+            <ul class="navbar nav ml-auto"
+                style="color:white;background-color:#ededed;width:43%;border-radius: 20px 0px 0px 0px;margin-bottom: 7px;">
+                {% endif %}
+                <li>
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+                        aria-haspopup="true" aria-expanded="false" style="color:black;">
+                        חפש לפי
+                    </a>
+                    <div id="dropdownSearch" class="dropdown-menu">
+                        <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('1');">שם</a>
+                        <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('2');">רחוב</a>
+                        <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('3');">עיר</a>
+                        <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('4');">פלאפון</a>
+                        <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('5');">מייל</a>
+                    </div>
+                <li>
+                    <input id="myInput" class="form-control
+                form-control-sm mr-3 w-75" type="text" onkeyup="searchByCategoryFunc();" placeholder="חיפוש"
+                        aria-label="חיפוש">
+                </li>
+                </li>
+                {% if session['isAdmin'] == '1' %}
+                <li style="padding-left: 10px; color: black;">
+                    <input type="radio" class="form-check-input" onclick="changeDisplayMode('1');" name="choice"
+                        id="">הצג
+                    הכל
+                </li>
+                <li style="padding-left: 10px; color: black;">
+                    <input type="radio" class="form-check-input" onclick="changeDisplayMode('2');" name="choice" id=""
+                        checked="checked">פעילים
+                </li>
+                <li style="padding-left: 10px; color: black;">
+                    <input type="radio" class="form-check-input" onclick="changeDisplayMode('3');" name="choice"
+                        id="">לא
+                    פעילים
+                </li>
+                {% endif %}
+            </ul>
+    </div>
+    <div class="table-wrapper-scroll-y my-custom-scrollbar">
+        <table id="chessboard" class="table table-bordered table-striped mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">שם</th>
+                    <th scope="col">רחוב</th>
+                    <th scope="col">עיר</th>
+                    <th scope="col">פלאפון</th>
+                    <th scope="col">מייל</th>
+                    {% if session['isAdmin'] == '1' %}
+                    <th> <a href="{{ url_for('add_contact') }}" title="הוספת איש קשר" class="btn-sm btn-primary"
+                            type="button">הוסף א.קשר</a>
+
+                        <a href="{{ url_for('mail') }}" title="שלח מייל" type="button" class="btn-sm btn-primary">שלח
+                            מייל</a>
+                    </th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in contacts %}
+                {% if row[6] == 0 %}
+                <tr id="inactive" style="color: rgb(160, 160, 160);">
+                    <td>{{row[2]}}</td>
+                    <td>{{row[4]}}</td>
+                    <td>{{row[5]}}</td>
+                    <td>{{row[3]}}</td>
+                    <td>{{row[1]}}</td>
+                    {% else %}
+                <tr id="active">
+                    <td class='d-none' id='ids' name="{{row[0]}}">{{row[0]}}</td>
+                    <td>{{row[2]}}</td>
+                    <td>{{row[4]}}</td>
+                    <td>{{row[5]}}</td>
+                    <td>{{row[3]}}</td>
+                    <td>{{row[1]}}</td>
+                    {% endif %}
+                    {% if session['isAdmin'] == '1' %}
+                    <td class="col-3">
+                        {% if row[6] == 1 %}
+                        <a type="button" id="editBtn" data-toggle="modal" data-target="#exampleModal"
+                            name="{{row[0]}}"><img src="../static/Icons/pencil.svg" alt="ערוך"
+                                name="{{row[0]}}#{{row[2]}}#{{row[4]}}#{{row[5]}}#{{row[3]}}#{{row[1]}}"></a>
+                        {% else %}
+                        <a type="button" id="disabledEditBtn" data-toggle="modal" name="{{row[0]}}"
+                            data-target="#exampleModal"><img src="../static/Icons/pencil.svg" alt="לא ניתן לערוך"
+                                name="{{row[0]}}"></a>
+                        {% endif %}
+                        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">עריכת איש קשר</h5>
+                                        <a type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span id="span-close" aria-hidden="true">&times;</span>
+                                        </a>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="form-group">
+                                                <label class="col-form-label">שם איש קשר:</label>
+                                                <input type="text" class="form-control" id="name" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">רחוב:</label>
+                                                <input type="text" class="form-control" id="street" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">עיר:</label>
+                                                <select class ="form-control" name="" id="city">
+                                                    {% for city in cities_list %}
+                                                    <option>{{city}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <!-- <input type="text" class="form-control" id="city" required> -->
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">טלפון:</label>
+                                                <input type="text" class="form-control" id="phone" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">דוא"ל:</label>
+                                                <input type="email" class="form-control" id="mail" required>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-dismiss="modal">סגור</button>
+                                        <a id="editConfirm" type="button" class="btn btn-primary" data-dismiss="modal">שמור</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% if row[6] == 1 %}
+                        <a id="status{{row[0]}}" type="button" name="{{row[0]}}" onclick="changeStatus(this);"><img
+                                id="status-img-{{row[0]}}" src="../static/Icons/green-circle.svg"
+                                style="height: 10px; margin-right: 25px;" alt="פעיל" title="פעיל"> פעיל</a>
+                        {% else %}
+                        <a id="status{{row[0]}}" type="button" name="{{row[0]}}" onclick="changeStatus(this);"><img
+                                id="status-img-{{row[0]}}" src="../static/Icons/red-circle.svg"
+                                style="height: 10px; margin-right: 25px;" alt="לא פעיל" title="לא פעיל"> לא פעיל</a>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+<script>
+    var GlobalId = 0;
+
+    function changeStatus(me) { // CHANGE STATUS TO ACTIVE/INACTIVE
+        attrName = $(me).attr("name");
+        var status = 1;
+        if (confirm("אתה בטוח שברצונך לשנות סטאטוס?")) {
+            if ($("#status-img-" + attrName).attr("title") == 'פעיל') {
+                $("#status-img-" + attrName).attr("src", "../static/Icons/red-circle.svg");
+                $("#status-img-" + attrName).attr("alt", "לא פעיל");
+                $("#status-img-" + attrName).attr("title", "לא פעיל");
+                status = 0
+            } else {
+                $("#status-img-" + attrName).attr("src", "../static/Icons/green-circle.svg");
+                $("#status-img-" + attrName).attr("alt", "פעיל");
+                $("#status-img-" + attrName).attr("title", "פעיל");
+            }
+            $.ajax({
+                type: "GET",
+                url: '/change_contact_status',
+                data: {
+                    'id': attrName,
+                    'status': status,
+                },
+                success: function (response) {
+                   $("#display_alert").attr("class", "alert alert-success").html(
+                    "סטאטוס שונה בהצלחה");
+                setTimeout(function () {
+                    location.reload(true);
+                }, 1100);                }
+            });
+        }
+    }
+
+    $("a#editBtn").on("click", function (e) { // ON CLICK 'editBtn' WE SET THE NAME, STREET, CITY, PHONE AND MAIL
+        $a = $(e.target);
+        $GlobalId = $a.attr('name');
+        $contact_details = $GlobalId.split("#");
+        $("#name").val($contact_details[1]);
+        $("#street").val($contact_details[2]);
+        $("#city").val($contact_details[3]);
+        $("#phone").val($contact_details[4]);
+        $("#mail").val($contact_details[5]);
+    });
+
+    $("a#editConfirm").on("click", function (e) { // EDIT CONTACT CONFIRM
+        $a = $(e.target)
+        $userId = $GlobalId.split("#")[0];
+        $name = $("#name").val();
+        $street = $("#street").val();
+        $city = $("#city option:selected").val();
+        $phone = $("#phone").val();
+        $mail = $("#mail").val();
+        if (checkIfExsists($name, $userId)){
+            alert('לא ניתן לערוך, שם איש קשר קיים במערכת');
+            return false;
+        }
+        if (!$name) {
+            alert("אנא הכנס את כל הנתונים");
+            return false;
+        }
+        strArr = new Array();
+        strArr.push($name, $street, $phone);
+        if (charsValidation(strArr)) {
+            alert("הוכנסו תווים לא תקינים");
+            return false;
+        }
+        $.ajax({
+            type: "GET",
+            url: '/edit_contact',
+            data: {
+                'id': $userId,
+                'name': $name,
+                'street': $street,
+                'city': $city,
+                'phone': $phone,
+                'mail': $mail
+            },
+            success: function (response) {
+                $("#display_alert").attr("class", "alert alert-success").html(
+                    "איש קשר נערך בהצלחה");
+                setTimeout(function () {
+                    location.reload(true);
+                }, 1100);
+            }
+        });
+    });
+
+    $('#exampleModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this)
+        modal.find('.modal-title').text('עריכת איש קשר')
+    });
+
+    $("a#disabledEditBtn").on("click", function (e) { // DISABLE THE EDIT BUTTON IF CONTACT IS INACTIVE 
+        $a = $(e.target);
+        alert("הפוך סטאטוס לפעיל על מנת לערוך");
+        return false;
+    });
+
+    $("a#getSearchCategory").on("click", function (e) { // SET THE SELECTED SEARCH CATEGORY AS A PLACEHOLDER
+        $a = $(e.target);
+        $("#myInput").attr("placeholder", $a.html());
+    });
+</script>
+{% endblock content %}

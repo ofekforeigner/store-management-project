@@ -1,0 +1,31 @@
+
+Blinker Changelog
+=================
+
+Version 1.0
+-----------
+
+Released March 28, 2010
+
+- Python 3.0 and 3.1 compatibility
+
+
+Version 0.9
+-----------
+
+Released February 26, 2010
+
+- Added ``Signal.temporarily_connected_to`` context manager
+- Docs!  Sphinx docs, project web site.
+
+
+Version 0.8
+-----------
+
+Released February 14, 2010
+
+- Initial release
+- Extracted from flatland.util.signals
+- Added Python 2.4 compatibility
+- Added nearly functional Python 3.1 compatibility (everything except
+  connecting to instance methods seems to work.)

@@ -1,0 +1,269 @@
+body {
+  background: #fafafa;
+  color: #333333;
+  margin-top: 5rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #444444;
+}
+
+legend {
+  text-align: center;
+}
+
+.col-3 {
+  flex: 0 0 auto;
+  width: 16%;
+}
+
+/* CSS FOR THE TABLE SCROLLBAR */
+.my-custom-scrollbar {
+  position: relative;
+  height: 470px;
+  width: 1300px;
+  overflow: auto;
+}
+
+td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+}
+
+.table-wrapper-scroll-y {
+  display: block;
+}
+
+.bg-steel {
+  background-color: #5f788a;
+}
+
+.site-header .navbar-nav .nav-link {
+  color: #cbd5db;
+}
+
+.site-header .navbar-nav .nav-link:hover {
+  color: #ffffff;
+}
+
+.site-header .navbar-nav .nav-link.active {
+  font-weight: 300;
+}
+
+.content-section {
+  background: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  margin-bottom: 20px;
+}
+
+/* Dropdown Button */
+.dropbtn {
+  background-color: #5f788a;
+  color: white;
+  font-size: 16px;
+  border: none;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  justify-content: center;
+  align-items: center;
+  margin-left: 10px;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {
+  background-color: #5f788a;
+}
+
+.img-thumbnail {
+  padding: .25rem;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: .25rem;
+  max-width: 100%;
+  height: 100%;
+}
+
+#cardClose {
+  float: left;
+  font-weight: bolder;
+}
+
+#cardComplete {
+  float: left;
+  font-weight: bolder;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 25%;
+  z-index: 1000;
+  display: none;
+  min-width: 10rem;
+  padding: .5rem 0;
+  margin: .125rem 0 0;
+  font-size: 1rem;
+  color: #212529;
+  text-align: right;
+  list-style: none;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 0, 0, .15);
+  border-radius: .25rem;
+}
+
+#span-close {
+  color: black;
+  font-weight: bold;
+  font-size: larger;
+}
+
+a {
+  text-decoration: none;
+}
+
+#notificationContainer {
+  background-color: #fff;
+  border: 1px solid rgba(100, 100, 100, .4);
+  -webkit-box-shadow: 0 3px 8px rgba(0, 0, 0, .25);
+  overflow: visible;
+  position: absolute;
+  top: 50px;
+  margin-left: -170px;
+  width: 300px;
+  z-index: -1;
+  display: none;
+}
+
+#notificationContainer:before {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 0;
+  height: 0;
+  color: transparent;
+  border: 10px solid black;
+  border-color: transparent transparent white;
+  margin-top: -20px;
+  margin-left: 188px;
+}
+
+#notificationTitle {
+  font-weight: bold;
+  padding: 8px;
+  font-size: 13px;
+  background-color: #ffffff;
+  position: absolute;
+  z-index: 1000;
+  width: 100%;
+  border-bottom: 1px solid #dddddd;
+}
+
+#notificationsBody {
+  padding: 33px 0px 0px 0px !important;
+  min-height: 500px;
+  position: absolute;
+  top: 0px;
+  bottom: 300px;
+  left: 0px;
+  width: 100%;
+  overflow-y: scroll;
+}
+
+#notificationFooter {
+  background-color: #e9eaed;
+  text-align: center;
+  font-weight: bold;
+  padding: 8px;
+  font-size: 12px;
+  border-top: 1px solid #dddddd;
+}
+
+/* HOME LINK CSS */
+#home-link {
+  margin-left: 10px;
+}
+
+.form-switch {
+  padding-left: 2em;
+}
+
+.form-switch .form-check-input {
+  width: 4em;
+  height: 30px;
+  margin-left: -2.5em;
+  background-position: left center;
+  border-radius: 2em;
+  float: right;
+}
+
+.form-check {
+  display: block;
+  min-height: 1.5rem;
+  padding-left: 1.5em;
+  margin-bottom: .125rem;
+  display: inline-block;
+}
+
+#search-bar {
+  text-align: left;
+}
+
+#chessboard tr.header,
+#chessboard tr:hover {
+  background-color: #e2e2e2;
+}
+
+#footer {
+  position: fixed;
+  padding: 8px 8px 0px 8px;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  /* Height of the footer*/
+  height: 35px;
+  background: #fafafa;
+}

@@ -1,0 +1,463 @@
+{% extends "layout.html" %}
+{% block content %}
+{% if session['isAdmin'] == '1' %}
+
+<body onload="changeDisplayMode('2')">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+        integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
+        crossorigin="anonymous" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='main.css') }}">
+    <script src="{{ url_for('static',filename='functions.js') }}"></script>
+
+    <div id="search-bar">
+        <ul class="navbar nav ml-auto"
+            style="color:white;background-color:#ededed;width:72%;border-radius: 20px 0px 0px 0px;margin-bottom: 7px;">
+
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                aria-expanded="false" style="color:black;">
+                חפש לפי
+            </a>
+            <div id="dropdownSearch" class="dropdown-menu">
+                <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('0');">מספר הזמנה</a>
+                <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('1');">שם ספק</a>
+                <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('4');">תאריך הזמנה</a>
+            </div>
+            <li>
+
+                <input id="myInput" class="form-control
+                form-control-sm mr-3 w-75" type="text" onkeyup="searchByCategoryFunc();" placeholder="חיפוש"
+                    aria-label="חיפוש">
+            </li>
+            {% if session['isAdmin'] == '1' %}
+            <li style="padding-left: 10px; color: black;">
+                <input type="radio" class="form-check-input" onclick="changeDisplayMode('1');" name="choice" id="">כל
+                ההזמנות</li>
+            <li style="padding-left: 10px; color: black;">
+                <input type="radio" class="form-check-input" onclick="changeDisplayMode('2');" name="choice" id=""
+                    checked="checked">פתוחות
+            </li>
+            <li style="padding-left: 10px; color: black;">
+                <input type="radio" class="form-check-input" onclick="changeDisplayMode('3');" name="choice" id="">בוצעו
+            </li>
+            <li style="padding-left: 10px; color: black;">
+                <input type="radio" class="form-check-input" onclick="changeDisplayMode('4');" name="choice"
+                    id="">סגורות
+            </li>
+            <li style="padding-left: 10px; color: black;">
+                <input type="radio" class="form-check-input" onclick="changeDisplayMode('5');" name="choice"
+                    id="">נעולות
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div class="table-wrapper-scroll-y my-custom-scrollbar">
+        <table id="chessboard" class="table table-bordered table-striped mb-0">
+            <thead>
+
+                <tr>
+                    <th scope="col">מספר הזמנה</th>
+                    <th scope="col">ספק</th>
+                    <th scope="col">סוג הזמנה</th>
+                    <th scope="col">תאריך יצירה</th>
+                    <th scope="col">תאריך הזמנה/החזרה</th>
+                    <th scope="col">כמות פריטים</th>
+                    <th scope="col">סכום</th>
+                    <th scope="col">סטאטוס</th>
+                    {% if session['isAdmin'] == '1' %}
+                    <th>
+                        <a type="button" class="btn-sm btn-primary" data-toggle="modal"
+                            data-target="#exampleModal2">הוסף
+                            הזמנה</a>
+                        <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog"
+                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">הוספת הזמנה</h5>
+                                        <a type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span id="span-close" aria-hidden="true">&times;</span>
+                                        </a>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="form-group">
+                                                <label class="col-form-label">ספק:</label>
+                                                <select class="form-control" name="" id="orderSupplier">
+                                                    {% for x in suppliers_name %}
+                                                    <option value="{{ x }}" id="orderSupplier">{{ x }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">תאריך הזמנה:</label>
+                                                <input type="date" class="form-control" onchange="checkDate()"
+                                                    id="orderDate">
+                                            </div>
+                                            <label class="col-form-label">סוג הזמנה:</label>
+                                            <select class="form-control" name="" id="orderType">
+                                                {% for x in types %}
+                                                <option value="{{ x }}" id="orderType">{{ x }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-dismiss="modal">סגור</button>
+                                        <a id="addOrderConfirm" type="button" class="btn btn-primary"
+                                            data-dismiss="modal">שמור</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                    {% endif %}
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in orders %}
+                {% if row[8] == 1 %}
+                <tr id="inactive">
+                    <td><a title="צפה הזמנה" href="{{ url_for('get_order_info', ordernumber=row[0]) }}" id="orderId"
+                        type="button" name="{{row[0]}}">{{row[0]}}
+                    </a></td>
+                    <td>{{row[1]}}</td>
+                    <td class="d-none">{{row[2]}}</td>
+                    <td>{{row[3]}}</td>
+                    <td>{{row[4]}}</td>
+                    <td>{{row[5]}}</td>
+                    <td>{{row[6]}}</td>
+                    <td>₪{{row[7]}}</td>
+                    {% elif row[8] == 2 %}
+                <tr id="closed" style="color: rgb(95 159 61);opacity:85%">
+                    <td><a title="צפה הזמנה" href="{{ url_for('get_order_info', ordernumber=row[0]) }}" id="orderId"
+                        type="button" name="{{row[0]}}">{{row[0]}}
+                    </a></td>
+                    <td>{{row[1]}}</td>
+                    <td class="d-none">{{row[2]}}</td>
+                    <td>{{row[3]}}</td>
+                    <td>{{row[4]}}</td>
+                    <td>{{row[5]}}</td>
+                    <td>{{row[6]}}</td>
+                    <td>₪{{row[7]}}</td>
+                    {% elif row[8] == 3 %}
+                <tr id="locked" style="color: rgb(255, 0, 0); opacity:80%">
+                    <td><a title="צפה הזמנה" href="{{ url_for('get_order_info', ordernumber=row[0]) }}" id="orderId"
+                        type="button" name="{{row[0]}}">{{row[0]}}
+                    </a></td>
+                    <td>{{row[1]}}</td>
+                    <td class="d-none">{{row[2]}}</td>
+                    <td>{{row[3]}}</td>
+                    <td>{{row[4]}}</td>
+                    <td>{{row[5]}}</td>
+                    <td>{{row[6]}}</td>
+                    <td>₪{{row[7]}}</td>
+                    {% else %}
+                <tr id="active">
+                    <td><a title="צפה הזמנה" href="{{ url_for('get_order_info', ordernumber=row[0]) }}" id="orderId"
+                        type="button" name="{{row[0]}}">{{row[0]}}
+                    </a></td>
+                    <td>{{row[1]}}</td>
+                    <td class="d-none">{{row[2]}}</td>
+                    <td>{{row[3]}}</td>
+                    <td>{{row[4]}}</td>
+                    <td>{{row[5]}}</td>
+                    <td>{{row[6]}}</td>
+                    <td>₪{{row[7]}}</td>
+                    {% endif %}
+                    {% if row[8] == 1 %}
+                    <td>בוצע   <a
+                            title="בטל ביצוע הזמנה" id="cancel_check_order"
+                            href="{{ url_for('cancel_check_order', ordernumber= row[0]) }}" name="{{row[0]}}"
+                            type="button" class="btn-sm btn-primary" style="background-color: #dc3545;float:left">בטל</a></td>
+                    {% elif row[8] == 0 %}
+                    <td>פתוחה   <a title="בצע הזמנה"
+                            id="check_order" href="{{ url_for('check_order', ordernumber= row[0]) }}"
+                            name="{{row[0]}}#{{row[6]}}#{{row[2]}}#{{row[3]}}" type="button" class="btn-sm btn-primary"
+                            style="background-color: #73cc42;float:left">בצע</a></td>
+
+                    {% elif row[8] == 2 %}
+                    <td>סגורה</td>
+                    {% else %}
+                    <td>נעולה</td>
+                    {% endif %}
+
+                    {% if session['isAdmin'] == '1' %}
+                    <td class="col-3">
+                        <div class="form-group" id="td_row">
+                            {% if session['isAdmin'] == '1' and row[8] == 0 %}
+                            <a style="display:inline-block" title="מחק הזמנה" id="deleteBtn" type="button"
+                                href="{{ url_for('delete_order') }}" class="btn-sm btn-danger" name="{{row[0]}}#{{row[6]}}#{{row[8]}}">מחק הזמנה
+                            </a>
+                            {% endif %}
+                            {% if session['isAdmin'] == '1' and row[8] == 1 %}
+                            <a title="סגור הזמנה" id="close_order"
+                                href="{{ url_for('close_order', ordernumber= row[0]) }}" name="{{row[0]}}#{{row[3]}}"
+                                type="button" class="btn-sm btn-primary" style="background-color: #51b333;">סגור
+                                הזמנה</a>
+                            {% endif %}
+                            {% if row[3] == 'הזמנה מספק' and row[8] == 0 %}
+                            <a title="הוסף פריטים" name="{{row[0]}}#{{row[1]}}#{{row[3]}}"
+                                href="{{ url_for('show_items_by_supplier', supplier = row[1], ordernumber=row[0]) }}"
+                                id="itemsInOrder" type="button" class="btn-sm btn-primary"
+                                style="background-color: #4aaee4;">הוסף פריטים
+                            </a>
+                            {% elif row[3] == 'החזרת סחורה לספק' and row[8] == 0 %}
+                            <a title="הוסף פריטים" name="{{row[0]}}#{{row[1]}}#{{row[3]}}"
+                                href="{{ url_for('show_expired_items_by_supplier', supplier = row[1], ordernumber=row[0]) }}"
+                                id="itemsInOrder" type="button" class="btn-sm btn-primary"
+                                style="background-color: #4aaee4;">הוסף פריטים
+                            </a>
+                        </div>
+                    </td>
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-danger" role="alert" id="center-row">
+            אין לך הרשאה לאיזור זה!
+        </div>
+        {% endif %}
+</body>
+
+<script>
+    var GlobalId = 0;
+
+    function checkDate() { // CHECK IF THE DATE WE CHOSE IS VALID, GREATER THAN TODAY AND NOT IN THE PAST
+        var selectedText = document.getElementById('orderDate').value;
+        var selectedDate = new Date(selectedText);
+        var now = new Date();
+        now.setHours(0, 0, 0, 0);
+        if (selectedDate < now) {
+            alert("התאריך עבר, הזן תאריך תקין");
+            $('#orderDate').val(now);
+        }
+    }
+
+    $("a#itemsInOrder").on("click", function (
+        e) { // DISPLAY ITEMS OF A THE SUPPLIER WHICH WE ORDERES FROM TO ADD TO THE ORDER
+        $a = $(e.target);
+        $b = $a.attr('name');
+        res = $b.split('#');
+        $orderNumber = res[0];
+        $supplierName = res[1];
+        $orderType = res[2];
+        if ($orderType.length <= 10) {
+            $url = '/show_items_by_supplier/<' + $supplierName + '>';
+        } else {
+            $url = '/show_expired_items_by_supplier/<' + $supplierName + '>';
+        }
+        $.ajax({
+            type: "GET",
+            url: $url,
+            data: {
+                'suppliername': $supplierName,
+                'ordernumber': $orderNumber,
+            },
+            success: function (response) {
+                e.preventDefault();
+                console.log(response);
+                downString = response.downloadString;
+            }
+        });
+    });
+
+
+    $("a#addOrderConfirm").on("click", function (e) { // ADD NEW ORDER
+        $a = $(e.target);
+        $name = $("#orderSupplier").val();
+        $date = $("#orderDate").val();
+        $type = $("#orderType").val();
+        if (!$type || !$date || !$name) {
+            alert("אנא הכנס את כל הנתונים");
+            return false;
+        }
+        $.ajax({
+            type: "GET",
+            url: '/add_order',
+            data: {
+                'name': $name,
+                'date': $date,
+                'type': $type
+            },
+            success: function (response) {
+                $("#display_alert").attr("class", "alert alert-success").html(
+                    "הזמנה נוספה בהצלחה");
+                setTimeout(function () {
+                    location.reload(true);
+                }, 1100);
+            }
+        });
+        e.preventDefault();
+    });
+
+    $("a#deleteBtn").on("click", function (e) { // DELETE AN ORDER
+        $a = $(e.target);
+        $b = $a.attr('name').split("#")[0];
+        $qty = $a.attr('name').split("#")[1];
+        $checked = $a.attr('name').split("#")[2];
+        if ($qty > 0 && $checked == 0) {
+            $("#display_alert").attr("class", "alert alert-danger").html(
+                "לא ניתן למחוק הזמנה שמכילה פריטים בתוכה");
+            setTimeout(function () {
+                location.reload(true);
+            }, 2000);
+            return false;
+        }
+        if (confirm(
+                "האם אתה בטוח שברצונך להסיר הזמנה זו?"
+            )) {
+            $.ajax({
+                type: "GET",
+                url: '/delete_order',
+                data: {
+                    'orderId': $b
+                },
+                success: function (response) {
+                    $("#display_alert").attr("class", "alert alert-success").html(
+                        "הזמנה נמחקה בהצלחה");
+                    setTimeout(function () {
+                        location.reload(true);
+                    }, 1100);
+                }
+            });
+            e.preventDefault();
+        }
+    });
+
+    $("a#orderId").on("click", function (e) { // DISPLAY ITEMS IN A SPECIFIC ORDER BY ORDER ID
+        $a = $(e.target);
+        $GlobalId = $a.attr('name');
+        $.ajax({
+            type: "GET",
+            url: '/get_order_info',
+            data: {
+                'ordernumber': $GlobalId,
+            },
+            success: function (response) {
+                console.log(response);
+                downString = response.downloadString;
+                e.preventDefault();
+            }
+        });
+    });
+
+    $("a#check_order").on("click", function (e) { // CHECK ORDER
+        $a = $(e.target);
+        $orderId = $a.attr('name').split("#")[0];
+        $qty = $a.attr('name').split("#")[1];
+        $mail = $a.attr('name').split("#")[2];
+        $order_type = $a.attr('name').split("#")[3];
+        if ($qty == 0) {
+            $("#display_alert").attr("class", "alert alert-danger").html(
+                "לא ניתן לבצע הזמנה שלא מכילה פריטים בתוכה");
+            setTimeout(function () {
+                location.reload(true);
+            }, 2000);
+            return false;
+        }
+        if (!$mail) {
+            $("#display_alert").attr("class", "alert alert-danger").html(
+                "לא ניתן לבצע הזמנה, לספק לא קיים מייל");
+            setTimeout(function () {
+                location.reload(true);
+            }, 2500);
+            return false;
+        }
+        if (confirm(
+                "האם אתה בטוח שברצונך לבצע הזמנה?"
+            )) {
+            $.ajax({
+                type: "GET",
+                url: '/check_order/<' + $orderId + '>',
+                data: {
+                    'mail': $mail,
+                    'order_type': $order_type,
+                },
+                success: function (response) {
+                    if ($order_type == 'הזמנה מספק') {
+                        $("#display_alert").attr("class", "alert alert-success").html(
+                            "הזמנה בוצעה בהצלחה, המלאי יתעדכן בתאריך ההזמנה"
+                        );
+                    } else {
+                        $("#display_alert").attr("class", "alert alert-success").html(
+                            "המלאי התעדכן, הספק יאסוף את הפריטים במועד ההחזרה"
+                        );
+                    }
+                    setTimeout(function () {
+                        location.reload(true);
+                    }, 2500);
+                }
+            });
+            e.preventDefault();
+        }
+        return false;
+    });
+
+    $("a#cancel_check_order").on("click", function (e) { // CANCEL CHECK ORDER
+        $a = $(e.target);
+        $orderId = $a.attr('name');
+        if (confirm(
+                "האם אתה בטוח שברצונך לבטל הזמנה?"
+            )) {
+            $.ajax({
+                type: "GET",
+                url: '/cancel_check_order/<' + $orderId + '>',
+                success: function (response) {
+                    $("#display_alert").attr("class", "alert alert-success").html(
+                        "הזמנה בוטלה בהצלחה");
+                    setTimeout(function () {
+                        location.reload(true);
+                    }, 1100);
+                }
+            });
+            e.preventDefault();
+        }
+        return false;
+    });
+
+
+    $("a#close_order").on("click", function (e) { // CLOSE ORDER
+        $a = $(e.target);
+        $orderId = $a.attr('name').split("#")[0];
+        $order_type = $a.attr('name').split("#")[1];
+        alert("לאחר סגירת הזמנה לא ניתן לבצע בה שינויים");
+        if (confirm(
+                "האם אתה בטוח שברצונך לסגור הזמנה?"
+            )) {
+            $.ajax({
+                type: "GET",
+                url: '/close_order/<' + $orderId + '>',
+                success: function (response) {
+                    if ($order_type == 'החזרת סחורה לספק') {
+                        $("#display_alert").attr("class", "alert alert-success").html(
+                            "הזמנה נסגרה בהצלחה, הספק יאסוף את הפריטים במועד ההחזרה"
+                        );
+                    } else {
+                        $("#display_alert").attr("class", "alert alert-success").html(
+                            "המלאי יתעדכן, הזמנה נסגרה בהצלחה"
+                        );
+                    }
+                    setTimeout(function () {
+                        location.reload(true);
+                    }, 2500);
+                }
+            });
+            e.preventDefault();
+        }
+        return false;
+    });
+
+    // SET THE SELECTED SEARCH CATEGORY AS A PLACEHOLDER
+    $("a#getSearchCategory").on("click", function (
+        e) {
+        $a = $(e.target);
+        $("#myInput").attr("placeholder", $a.html());
+    });
+</script>
+{% endblock content %}

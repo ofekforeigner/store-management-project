@@ -1,0 +1,41 @@
+<!-- EXCEL CONVERTER SETTINGS -->
+
+{% extends "layout.html" %}
+{% block content %}
+ <a href="{{ url_for('work_schedule') }}" title="חזור">חזור</a>
+
+<body>
+  {{ data | safe }}
+
+</body>
+
+<script>
+  $('#input-excel').change(function (e) {
+    var reader = new FileReader();
+    reader.readAsArrayBuffer(e.target.files[0]);
+    reader.onload = function (e) {
+      var data = new Uint8Array(reader.result);
+      var wb = XLSX.read(data, {
+        type: 'array'
+      });
+      if (wb.SheetNames == "Sheet1") {
+        var htmlstr = XLSX.write(wb, {
+          sheet: "Sheet1",
+          type: 'string',
+          bookType: 'html'
+        })
+      } else {
+        var htmlstr = XLSX.write(wb, {
+          sheet: "גיליון1",
+          type: 'string',
+          bookType: 'html'
+        })
+      };
+      $('#wrapper')[0].innerHTML += htmlstr;
+    }
+  });
+  $(document).ready(function () {
+    $("table").addClass('table table-bordered table-striped mb-0').removeClass('dataframe');;
+  });
+</script>
+{% endblock content %}

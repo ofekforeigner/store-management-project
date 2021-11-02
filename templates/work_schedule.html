@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <div id="wrapper">
+        <div class="row">
+            <div class="col">
+                <h2>סידורי עבודה</h2>
+                {% if session['isAdmin'] == '1' %}
+                <form action="/work_schedule" method="POST" enctype="multipart/form-data" style="direction: ltr;">
+                    <div class="form-group">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" name="ws" id="ws" oninput="filesize(this);">
+                            <label class="custom-file-label" for="ws">:בחר קובץ</label>
+                        </div>
+                    </div>
+                    </br>
+                    <button type="submit" class="btn btn-primary">העלה</button>
+                    <p style="font-size: small;">בלבד xlsx ניתן להעלות קבצי</p>
+                </form>
+                {% endif %}
+                <hr>
+            </div>
+            <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                <table id="chessboard" class="table table-bordered table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">שם סידור עבודה</th>
+                            <th scope="col">הורדה</th>
+                            <th scope="col">צפייה</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if files %}
+                        {% for file in files %}
+                        <tr>
+                            <td>{{file}}</td>
+                            <td><a id="getFileName" href="{{ url_for('get_file',file_name=file) }}"><img
+                                        src="../static/Icons/download.svg" alt="הורד קובץ" class="p-2"
+                                        style="margin-left:10px;"></a>
+                            </td>
+                            <td><a class="p-3" href="{{ url_for('weekly_shifts',filename=file) }}" id="disp-ws"><img
+                                        src="../static/Icons/eye.svg" alt="צפה בקובץ" name={{file}}></a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function filesize(elem) { // GET WORK SCHEDULE FILE SIZE
+        document.cookie = `filesize=${elem.files[0].size}`
+    }
+
+    $("a#getFileName").on("click", function (e) { // GET THE FILE NAME
+        $a = $(e.target);
+        $filename = $a.html();
+        $.ajax({
+            type: "GET",
+            url: '/get_file_name/',
+            data: {
+                'filename': $filename
+            },
+            success: function (response) {
+                console.log(response);
+                downString = response.downloadString;
+            }
+        });
+    })
+
+    $("a#disp-ws").on("click", function (e) { // DISPLAY THE WEEKLY SHIFTS BY FILENAME
+        $a = $(e.target);
+        $filename = $a.attr('name');
+        $.ajax({
+            type: "GET",
+            url: '/weekly_shifts/<' + $filename + '>',
+            data: {
+                'filename': $filename
+            },
+            success: function (response) {
+                downString = response.downloadString;
+            }
+        });
+    })
+</script>
+{% endblock content %}

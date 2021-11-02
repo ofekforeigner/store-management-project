@@ -1,0 +1,114 @@
+body {
+  background-color: white;
+}
+
+/* the main square */
+#div1 {
+  position: absolute;
+  background-color: whitesmoke;
+  width: 92%;
+  height: 89%;
+  border: rgb(99, 127, 140);
+  border-style: solid;
+  box-shadow: 1px 1px 10px 1px rgb(166, 166, 213);
+  left: 1%;
+  top: 2%;
+  border-width: 50px 3px 30px 3px;
+}
+
+/* icon bar */
+
+.icon-bar {
+  width: 100px; /* Set a specific width */
+  height: 943px;
+  top: -5.9%;
+  background-color: rgb(68, 90, 100); /* Dark-grey background */
+  position: absolute;
+  left: 100.21%;
+}
+
+.icon-bar a {
+  display: block; /* Make the links appear below each other instead of side-by-side */
+  text-align: center; /* Center-align text */
+  padding: 16px; /* Add some padding */
+  transition: all 0.3s ease; /* Add transition for hover effects */
+  color: white; /* White text color */
+  font-size: 36px; /* Increased font-size */
+}
+
+.icon-bar a:hover {
+  transition: 500ms;
+  background-color: rgb(99, 127, 140); /* Add a hover color */
+}
+
+.active {
+  background-color: rgb(6, 14, 37); /* Add an active/current color */
+}
+
+#calcTitle {
+  font-size: 1.5rem;
+  color: white;
+  font-family: sans-serif;
+  position: absolute;
+  left: 95.5%;
+  top: -8%;
+}
+
+#calcTitle:hover {
+  color: whitesmoke;
+}
+
+#CalcSquare {
+  position: absolute;
+  top: 15%;
+  background-color: #5f788a;
+  margin: 50px;
+  width: 550px;
+  height: 350px;
+  margin: 0 auto; /* horizontally centreing an element */
+  border-radius: 20px;
+  padding: 10px;
+  left: 23%;
+}
+
+#screen {
+  background-color: #d1e0e0;
+  width: 520px;
+  height: 50px;
+  position: absolute;
+  border-radius: 20px;
+
+  margin: 0 auto;
+  font-size: 2rem;
+  color: #000000;
+  text-align: center;
+  top: 7%;
+  left: 2.7%;
+}
+
+table {
+  background-color: white;
+  margin: 0 auto;
+  position: absolute;
+  top: 30%;
+  left: 5%;
+  border-radius: 20px;
+  width: 89.5%;
+  height: 60%;
+}
+
+td {
+  width: 80px;
+  height: 20px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.orange {
+  color: rgb(29, 127, 140);
+}
+
+td:active {
+  background-color: #e0e0d1;
+  border-radius: 20px;
+}

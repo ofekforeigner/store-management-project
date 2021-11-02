@@ -1,0 +1,66 @@
+<!-- THIS PAGE CONTAINS A FLASK FORM FOR MAIL -->
+
+{% extends "layout.html" %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+    integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
+    crossorigin="anonymous" />
+{% if session['isAdmin'] == '1' %}
+<div id="mailSend" class="content-section">
+    <form id="mailSend" action="" method="POST">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">שליחת מייל</legend>
+            <div class="form-group p-2">
+                {{ form.name.label(class="form-control-label") }}
+
+                {% if form.name.errors %}
+                {{ form.name(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.name(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            <div class="form-group p-2">
+                {{ form.header.label(class="form-control-label") }}
+
+                {% if form.header.errors %}
+                {{ form.header(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.header.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.header(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            <div class="form-group p-2 mh-100">
+                {{ form.msg.label(class="form-control-label") }}
+                {% if form.msg.errors %}
+                {{ form.msg(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.msg.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.msg(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+
+        </fieldset>
+        <div class="form-group p-2" id="center-row">
+            {{ form.sendMail(class="btn btn-primary" )}}
+        </div>
+    </form>
+    {% else %}
+    <div class="alert alert-danger" role="alert" id="center-row">
+        אין לך הרשאה לאיזור זה!
+    </div>
+    {% endif %}
+    {% endblock content %}

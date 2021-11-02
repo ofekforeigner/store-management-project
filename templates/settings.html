@@ -1,0 +1,143 @@
+<!-- THIS PAGE CONTAINS A FLASK FORM FOR SETTINGS -->
+
+{% extends "layout.html" %}
+{% block content %}
+{% if session['isAdmin'] == '1' %}
+    <div class="content-section">
+        <form action="" method="POST">
+            {{ form.hidden_tag() }}
+              <legend class="border-bottom mb-4">צלילים</legend>
+                <div class="form-group p-2">
+                    {{ form.sound.label(class="form-control-label") }}
+
+                    {% if form.sound.errors %}
+                        {{ form.sound(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.sound.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.sound(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+
+            <legend class="border-bottom mb-4">התראות</legend>
+            <fieldset class="form-group">
+               <h6 class="border-bottom mb-4 p-2">משימות</h6>
+                <div class="form-group p-2">
+                    {{ form.task_alert.label(class="form-control-label") }}
+
+                    {% if form.task_alert.errors %}
+                        {{ form.task_alert(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.task_alert.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.task_alert(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <h6 class="border-bottom mb-4 p-2">תוקף פריטים</h6>
+				<div class="form-group p-2">
+                    {{ form.items_alert.label(class="form-control-label") }}
+                    {% if form.items_alert.errors %}
+                        {{ form.items_alert(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.items_alert.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.items_alert(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+
+                 <h6 class="border-bottom mb-4 p-2">מלאי פריטים</h6>
+                	<div class="form-group p-2">
+                    {{ form.items_amount_alert.label(class="form-control-label") }}
+                    {% if form.items_amount_alert.errors %}
+                        {{ form.items_amount_alert(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.items_amount_alert.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.items_amount_alert(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                	<div class="form-group p-2">
+                    {{ form.items_amount.label(class="form-control-label") }}
+                    {% if form.items_amount.errors %}
+                        {{ form.items_amount(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.items_amount.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.items_amount(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+
+                 <legend class="border-bottom mb-4 p-2">פרסומות</legend>
+                <div class="form-group p-2">
+                    {{ form.advert.label(class="form-control-label") }}
+
+                    {% if form.advert.errors %}
+                        {{ form.advert(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.advert.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.advert(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+				 <legend class="border-bottom mb-4 p-2">הגדרות אימייל</legend>
+				 <div class="form-group p-2">
+
+                    {{ form.mail.label(class="form-control-label") }}
+
+                    {% if form.mail.errors %}
+                        {{ form.mail(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.mail.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.mail(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+				
+					 <div class="form-group p-2">
+                    {{ form.mailpass.label(class="form-control-label") }}
+
+                    {% if form.mailpass.errors %}
+                        {{ form.mailpass(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.mailpass.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.mailpass(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+				
+              <div class="form-group p-2" id="center-row">
+                {{ form.submit(class="btn btn-primary" )}}
+             </div>
+            </fieldset>
+        </form>
+    </div>
+{% else %}
+<div class="alert alert-danger" role="alert" id="center-row">
+    אין לך הרשאה לאיזור זה!
+  </div>
+{% endif %}
+{% endblock content %}

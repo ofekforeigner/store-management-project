@@ -1,0 +1,78 @@
+<!-- THIS PAGE CONTAINS A FLASK FORM FOR ADDING NEW TASK -->
+
+{% extends "layout.html" %}
+{% block content %}
+<div id="display_alert"></div>
+{% if session['isAdmin'] == '1' %}
+<div class="content-section">
+    <form action="" method="POST">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">הוספת משימה</legend>
+            <div class="form-group p-2">
+                {{ form.name.label(class="form-control-label") }}
+
+                {% if form.name.errors %}
+                {{ form.name(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.name(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            <div class="form-group p-2">
+                {{ form.task.label(class="form-control-label") }}
+
+                {% if form.task.errors %}
+                {{ form.task(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.task.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.task(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            <div class="form-group p-2">
+                {{ form.task_date.label(class="form-control-label") }}
+
+                {% if form.task_date.errors %}
+                {{ form.task_date(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.task_date.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.task_date(class="form-control form-control-lg", onchange="checkDate()") }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group p-2" id="center-row">
+            {{ form.add_task(class="btn btn-primary", onclick="charsValidation()")}}
+        </div>
+    </form>
+</div>
+{% else %}
+<div class="alert alert-danger" role="alert" id="center-row">
+    אין לך הרשאה לאיזור זה!
+</div>
+{% endif %}
+
+<script>
+    function checkDate() { // CHECK IF THE DATE WE CHOSE IS VALID, GREATER THAN TODAY AND NOT IN THE PAST
+        var selectedText = document.getElementById('task_date').value;
+        var selectedDate = new Date(selectedText);
+        var now = new Date();
+        now.setHours(0, 0, 0, 0);
+        if (selectedDate < now) {
+            alert("התאריך עבר, הזן תאריך תקין");
+            $('#task_date').val(now);
+        }
+    }
+</script>
+{% endblock content %}

@@ -1,0 +1,133 @@
+{% extends "layout.html" %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='main.css') }}">
+<script src="{{ url_for('static',filename='functions.js') }}"></script>
+
+<h4 id="center-row">הזמנה מספר: {{ordernumber}}</h4>
+
+{% if order_info %}
+<div id="search-bar">
+    <ul class="navbar nav ml-auto"
+        style="color:white;background-color:#ededed;width:30%;border-radius: 20px 0px 0px 0px;margin-bottom: 7px;">
+
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+            aria-expanded="false" style="color:black;">
+            חפש לפי
+        </a>
+        <div id="dropdownSearch" class="dropdown-menu">
+            <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('1');">ברקוד</a>
+            <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('2');">כמות</a>
+            <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('3');">סכום</a>
+        </div>
+        <li>
+
+            <input id="myInput" class="form-control
+                form-control-sm mr-3 w-75" type="text" onkeyup="searchByCategoryFunc();" placeholder="חיפוש"
+                aria-label="חיפוש">
+        </li>
+
+        <li>
+    </ul>
+
+</div>
+
+<div class="table-wrapper-scroll-y my-custom-scrollbar">
+    <table id="chessboard" class="table table-bordered table-striped mb-0">
+        <thead>
+            <tr>
+                <th scope="col">שם פריט</th>
+                <th scope="col">ברקוד</th>
+                <th scope="col">כמות</th>
+                <th scope="col">מחיר ליחידה</th>
+                <th scope="col">סכום</th>
+                <th>
+                    <a class="btn-sm btn-primary" href="{{ url_for('orders') }}" id="ordernum" title="חזור"
+                        type="button">חזור
+                    </a>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for row in order_info %}
+            <tr>
+                <td>{{row[1]}}</td>
+                <td>{{row[3]}}</td>
+                <td>{{row[4]}}</td>
+                <td>₪{{row[5]}}</td>
+                <td maxlength='4'>₪{{row[5]*row[4]}}</td>
+
+                {% if session['isAdmin'] == '1' %}
+                <td class="col-3">
+                    <div class="form-group">
+                        <a id="deleteBtn" type="button" name="{{row[2]}}#{{row[0]}}#{{row[4]}}#{{row[6]}}"
+                            href="{{ url_for('delete_item_from_order') }}"><img src="../static/Icons/trash.svg"
+                                alt="מחק" id="deleteBtn" name="{{row[2]}}#{{row[0]}}#{{row[4]}}#{{row[6]}}"></a>
+                    </div>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+    {% else %}
+    <div class="alert alert-danger" role="alert" id="center-row">
+        אין פריטים בהזמנה זו!
+    </div>
+    <a href="{{ url_for('orders') }}" title="חזור" type="button" class="btn-sm btn-primary"
+                        style="background-color: #4aaee4;">חזור</a>
+    {% endif %}
+
+
+    <script>
+        var GlobalId = 0;
+
+        $("a#deleteBtn").on("click", function (e) { // DELETE ITEM FROM ORDER
+            e.preventDefault();
+            $a = $(e.target);
+            $is_checked = '{{ is_checked }}';
+            $b = $a.attr('name');
+            res = $b.split('#');
+            $id = res[0];
+            $itemId = res[1];
+            $amount = res[2];
+            $price = res[3];
+            if ($is_checked == '0') {
+                if (confirm("?אתה בטוח שברצונך להסיר פריט זה")) {
+                    $.ajax({
+                        type: "GET",
+                        url: '/delete_item_from_order',
+                        data: {
+                            'ordernumber': res[0],
+                            'itemid': res[1],
+                            'amount': res[2],
+                            'price': res[3],
+                        },
+                        success: function (response) {
+                            $("#display_alert").attr("class", "alert alert-success").html(
+                                "פריט נמחק בהצלחה");
+                            setTimeout(function () {
+                                location.reload(true);
+                            }, 1100);
+                        }
+                    });
+                }
+            } else {
+                $("#display_alert").attr("class", "alert alert-danger").html(
+                    "אנא בטל הזמנה על מנת למחוק פריטים מתוכה");
+                setTimeout(function () {
+                    location.reload(true);
+                }, 2500);
+            }
+            return false;
+        });
+
+        $("a#getSearchCategory").on("click", function (e) { // SET THE SELECTED SEARCH CATEGORY AS A PLACEHOLDER
+            $a = $(e.target);
+            $("#myInput").attr("placeholder", $a.html());
+        });
+    </script>
+
+    {% endblock content %}

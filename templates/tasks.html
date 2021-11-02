@@ -1,0 +1,177 @@
+{% extends "layout.html" %}
+{% block content %}
+<script src="{{ url_for('static',filename='functions.js') }}"></script>
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+    integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
+    crossorigin="anonymous" />
+<div id="display_alert"></div>
+<div id="search-bar">
+    <ul class="navbar nav ml-auto"
+        style="color:white;background-color:#ededed;width:30%;border-radius: 20px 0px 0px 0px;margin-bottom: 7px;">
+        <li>
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                aria-expanded="false" style="color:black;">
+                חפש לפי
+            </a>
+            <div id="dropdownSearch" class="dropdown-menu">
+                <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('0')">שם העובד</a>
+                <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('1')">תיאור המשימה</a>
+            </div>
+        <li>
+            <input id="myInput" class="form-control
+                form-control-sm mr-3 w-75" type="text" onkeyup="searchByCategoryFunc()" placeholder="חיפוש"
+                aria-label="חיפוש">
+        </li>
+        </li>
+    </ul>
+</div>
+<div class="table-wrapper-scroll-y my-custom-scrollbar">
+    <table id="chessboard" class="table table-bordered table-striped mb-0">
+        <thead>
+
+            <tr>
+                <th scope="col">שם העובד</th>
+                <th scope="col">תיאור המשימה</th>
+                <th scope="col">תאריך לביצוע</th>
+                <th scope="col">בוצע/לא בוצע</th>
+                {% if session['isAdmin'] == '1' %}
+                <th><a id="delAllTasks" type="button" class="btn-sm btn-danger"
+                        href="{{ url_for('delete_all_tasks') }}">מחק
+                        הכל</a>
+                    <a href="{{ url_for('add_task') }}" title="הוספת משימה" type="button"
+                        class="btn-sm btn-primary">הוסף
+                        משימה</a>
+                </th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in value %}
+            {% if row[1] == logged_user and session['isAdmin'] == '2' %}
+            <tr>
+                <td>{{row[1]}}</td>
+                <td>{{row[2]}}</td>
+                <td>{{row[3]}}</td>
+                {% if row[4] %}
+                <!--show complete logo if is this task complete-->
+                <td><img src="../static/Icons/check.svg" alt="בוצעה"></td>
+                {% else %}
+                <!--show un complete logo if is this task  not complete yet -->
+                <td><img src="../static/Icons/x.svg" alt="לא בוצעה"></td>
+                {% endif %}
+            </tr>
+            {% elif session['isAdmin'] == '1' %}
+            <tr>
+                <td>{{row[1]}}</td>
+                <td>{{row[2]}}</td>
+                <td>{{row[3]}}</td>
+                {% if row[4] %}
+                <!--show complete logo if is this task complete-->
+                <td><img src="../static/Icons/check.svg" alt="בוצעה"></td>
+                {% else %}
+                <!--show un complete logo if is this task  not complete yet -->
+                <td><img src="../static/Icons/x.svg" alt="לא בוצעה"></td>
+                {% endif %}
+
+                {% if session['isAdmin'] == '1' %}
+                <td><a id="deleteBtn" type="button" href="{{ url_for('delete_task') }}"><img
+                            src="../static/Icons/trash.svg" alt="מחק" name="{{row[0]}}">
+                    </a></td>
+                {%  endif %}
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+
+    </table>
+    <div class="din d-none">
+        <div class="content-section">
+            <label for="name">שם עובד</label>
+            <div class="form-floating mb-3">
+                <select name="name" id="optionName">
+                    {% for name in names %}
+                    <option id="name">{{name[0]}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="task" placeholder="תיאור המשימה" required>
+                <label for="task">תיאור המשימה</label>
+            </div>
+            <div class="form-floating">
+                <input type="date" class="form-control" id="date" placeholder="תאריך" required>
+                <label for="date">תאריך לביצוע</label>
+            </div>
+            <a id="closeTask" type="button" class="btn btn-outline-secondary">סגור</a>
+            <a id="addTaskBtn" type="button" class="btn btn-outline-info" href="{{ url_for('add_task') }}">הוסף</a>
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+    $("a#deleteBtn").on("click", function (e) { // DELETE TASK
+        e.preventDefault();
+        $a = $(e.target);
+        $task = $a.attr('name');
+        if (confirm(
+                "?אתה בטוח שברצונך להסיר את המשימה"
+            )) {
+            $.ajax({
+                type: "GET",
+                url: '/delete_task',
+                data: {
+                    'taskID': $task,
+                },
+                success: function (response) {
+                    console.log(response);
+                    downString = response.downloadString;
+                    $("#display_alert").attr("class", "alert alert-success").html(
+                        "המשימה נמחקה בהצלחה");;
+                    setTimeout(function () {
+                        location.reload(true);
+                    }, 2000);
+                }
+            });
+        } else {
+            return false;
+        }
+    });
+
+    $("a#delAllTasks").on("click", function (e) { // DELETE ALL TASKS
+        e.preventDefault();
+        $a = $(e.target);
+        $allTasks = '{{value}}';
+        if ($allTasks.length < 3) {
+            $("#display_alert").attr("class", "alert alert-danger").html("לא קיימות משימות");
+            setTimeout(function () {
+                location.reload();
+            }, 2000);
+            return false;
+        }
+        if (confirm(
+                "אתה בטוח שברצונך להסיר את כול המשימות?"
+            )) {
+            $.ajax({
+                type: "GET",
+                url: '/deleteAllTasks',
+                success: function (response) {
+                    $("#display_alert").attr("class", "alert alert-success").html(
+                        "כל המשימות נמחקו בהצלחה");;
+                    setTimeout(function () {
+                        location.reload(true);
+                    }, 2000);
+                }
+            });
+        } else {
+            return false;
+        }
+    });
+
+    $("a#getSearchCategory").on("click", function (e) { // SET THE SELECTED SEARCH CATEGORY AS A PLACEHOLDER
+        $a = $(e.target);
+        $("#myInput").attr("placeholder", $a.html());
+    });
+</script>
+{% endblock content %}

@@ -1,0 +1,293 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<body onload="changeDisplayMode('2')">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+        integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
+        crossorigin="anonymous" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='main.css') }}">
+    <script src="{{ url_for('static',filename='functions.js') }}"></script>
+
+    <div id="search-bar">
+        {% if session['isAdmin'] == '1' %}
+        <ul class="navbar nav ml-auto"
+            style="color:white;background-color:#ededed;width:60%;border-radius: 20px 0px 0px 0px;margin-bottom: 7px;">
+            {% else %}
+            <ul class="navbar nav ml-auto"
+                style="color:white;background-color:#ededed;width:43%;border-radius: 20px 0px 0px 0px;margin-bottom: 7px;">
+                {% endif %}
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                    aria-expanded="false" style="color:black;">
+                    חפש לפי
+                </a>
+                <div id="dropdownSearch" class="dropdown-menu">
+                    <a id="getSearchCategory" class="dropdown-item" onclick="ChosenCategory('1');">שם קטגוריה</a>
+                </div>
+                <li>
+
+                    <input id="myInput" class="form-control
+    form-control-sm mr-3 w-75" type="text" onkeyup="searchByCategoryFunc();" placeholder="חיפוש" aria-label="חיפוש">
+                </li>
+
+                {% if session['isAdmin'] == '1' %}
+                <li style="padding-left: 10px; color: black;">
+                    <input type="radio" class="form-check-input" onclick="changeDisplayMode('1');" name="choice"
+                        id="">הצג
+                    הכל
+                </li>
+                <li style="padding-left: 10px; color: black;">
+                    <input type="radio" class="form-check-input" onclick="changeDisplayMode('2');" name="choice" id=""
+                        checked="checked">פעילים
+                </li>
+                <li style="padding-left: 10px; color: black;">
+                    <input type="radio" class="form-check-input" onclick="changeDisplayMode('3');" name="choice"
+                        id="">לא
+                    פעילים
+                </li>
+                {% endif %}
+            </ul>
+    </div>
+
+    <div class="table-wrapper-scroll-y my-custom-scrollbar">
+        <table id="chessboard" class="table table-bordered table-striped mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">שם קטגוריה</th>
+                    {% if session['isAdmin'] == '1' %}
+                    <th>
+                        <a type="button" class="btn-sm btn-primary" data-toggle="modal"
+                            data-target="#exampleModal2">הוסף
+                            קטגוריה</a>
+                        <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog"
+                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">הוספת קטגוריה</h5>
+                                        <a type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span id="span-close" aria-hidden="true">&times;</span>
+                                        </a>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="form-group">
+                                                <label class="col-form-label">שם קטגוריה:</label>
+                                                <input type="text" class="form-control" id="catName" required>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-dismiss="modal">סגור</button>
+                                        <a id="addCategoryConfirm" type="button" class="btn btn-primary"
+                                            data-dismiss="modal">שמור</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                    {% endif %}
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in categories %}
+                {% if row[2] == 0 %}
+                <tr id="inactive" style="color: rgb(160, 160, 160);">
+                    <td>{{row[1]}}</td>
+                    {% else %}
+                <tr id="active">
+                    <td class='d-none' id='ids' name="{{row[0]}}">{{row[0]}}</td>
+                    <td>{{row[1]}}</td>
+                    {% endif %}
+                    {% if session['isAdmin'] == '1' %}
+                    <td class="col-3">
+                        <div class="form-group">
+                            {% if row[2] == 1 %}
+                            <a type="button" id="editBtn" data-toggle="modal" name="{{row[0]}}#{{row[1]}}"
+                                data-target="#exampleModal"><img src="../static/Icons/pencil.svg" alt="ערוך"
+                                    name="{{row[0]}}#{{row[1]}}"></a>
+                            {% else %}
+                            <a type="button" id="disabledEditBtn" data-toggle="modal" name="{{row[0]}}"
+                                data-target="#exampleModal"><img src="../static/Icons/pencil.svg"
+                                    alt="לא ניתן לערוך"></a>
+                            {% endif %}
+                            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+                                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">עריכת קטגוריה</h5>
+                                            <a type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span id="span-close" aria-hidden="true">&times;</span>
+                                            </a>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form>
+                                                <div class="form-group">
+                                                    <label class="col-form-label">שם קטגוריה:</label>
+                                                    <input name="{{row[1]}}" type="text" class="form-control"
+                                                        id="editCatName" required>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-dismiss="modal">סגור</button>
+                                            <a id="editConfirm" type="button" class="btn btn-primary"
+                                                data-dismiss="modal">שמור</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if row[2] == 1 %}
+                            <a id="status{{row[0]}}" type="button" name="{{row[0]}}" onclick="changeStatus(this);"><img
+                                    id="status-img-{{row[0]}}" src="../static/Icons/green-circle.svg"
+                                    style="height: 10px; margin-right: 25px;" alt="פעיל" title="פעיל"> פעיל</a>
+                            {% else %}
+                            <a id="status{{row[0]}}" type="button" name="{{row[0]}}" onclick="changeStatus(this);"><img
+                                    id="status-img-{{row[0]}}" src="../static/Icons/red-circle.svg"
+                                    style="height: 10px; margin-right: 25px;" alt="לא פעיל" title="לא פעיל"> לא פעיל</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+<script>
+    var GlobalId = 0;
+
+    $("a#editBtn").on("click", function (e) { // ON CLICK 'editBtn' WE SET THE NAME OF THE CATEGORY
+        $a = $(e.target);
+        $GlobalId = $a.attr('name');
+        nameAttr = $GlobalId.split("#");
+        $("#editCatName").val(nameAttr[1]);
+    });
+
+    $("a#editConfirm").on("click", function (e) { // EDIT CATEGORY CONFIRM
+        $a = $(e.target);
+        $userId = $GlobalId.split("#")[0];
+        $name = $("#editCatName").val();
+        if (checkIfExsists($name, $userId)){
+            alert('לא ניתן לערוך, שם קטגוריה קיים במערכת');
+            return false;
+        }
+        if (!$name) {
+            alert("אנא הכנס את כל הנתונים");
+            return false;
+        }
+        strArr = new Array();
+        strArr.push($name);
+        if (charsValidation(strArr)) {
+            alert("הוכנסו תווים לא תקינים");
+            return false;
+        }
+        $.ajax({
+            type: "GET",
+            url: '/edit_category',
+            data: {
+                'id': $userId,
+                'name': $name,
+            },
+            success: function (response) {
+                $("#display_alert").attr("class", "alert alert-success").html(
+                    "קטגוריה נערכה בהצלחה");
+                setTimeout(function () {
+                    location.reload(true);
+                }, 1100);
+            }
+        });
+    });
+
+    $('#exampleModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this)
+        modal.find('.modal-title').text('עריכת קטגוריה')
+    });
+
+    $("a#disabledEditBtn").on("click", function (e) { // DISALBE THE EDIT BUTTON IF CATEGORY IS INACTIVE
+        $a = $(e.target);
+        alert("הפוך סטאטוס לפעיל על מנת לערוך");
+        return false;
+    });
+
+    $("a#addCategoryConfirm").on("click", function (e) { // ADD CATEGORY CONFIRM
+        $a = $(e.target);
+        $name = $("#catName").val();
+        strArr = new Array();
+        strArr.push($name);
+        if (checkIfExsists($name)){
+            alert('לא ניתן להוסיף, שם קטגוריה קיים במערכת');
+            return false;
+        }
+        if (charsValidation(strArr)) {
+            alert("הוכנסו תווים לא תקינים");
+            return false;
+        }
+        $.ajax({
+            type: "GET",
+            url: '/add_category',
+            data: {
+                'name': $name,
+            },
+            success: function (response) {
+                $("#display_alert").attr("class", "alert alert-success").html(
+                    "קטגוריה נוספה בהצלחה");
+                setTimeout(function () {
+                    location.reload(true);
+                }, 1100);
+            }
+        });
+    });
+
+    $('#exampleModal2').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this)
+        modal.find('.modal-title').text('הוספת קטגוריה')
+    });
+
+    function changeStatus(me) { // CHANGE THE STATUS TO ACTIVE/INACTIVE
+        attrName = $(me).attr("name");
+        var status = 1;
+        if (confirm("אתה בטוח שברצונך לשנות סטאטוס?")) {
+            if ($("#status-img-" + attrName).attr("title") == 'פעיל') {
+                $("#status-img-" + attrName).attr("src", "../static/Icons/red-circle.svg");
+                $("#status-img-" + attrName).attr("alt", "לא פעיל");
+                $("#status-img-" + attrName).attr("title", "לא פעיל");
+                status = 0
+            } else {
+                $("#status-img-" + attrName).attr("src", "../static/Icons/green-circle.svg");
+                $("#status-img-" + attrName).attr("alt", "פעיל");
+                $("#status-img-" + attrName).attr("title", "פעיל");
+            }
+            $.ajax({
+                type: "GET",
+                url: '/change_category_status',
+                data: {
+                    'id': attrName,
+                    'status': status,
+                },
+                success: function (response) {
+                    downString = response.downloadString;
+                }
+            });
+        }
+    }
+
+    $("a#getSearchCategory").on("click", function (e) { // SET THE SELECTED SEARCH CATEGORY AS A PLACEHOLDER
+        $a = $(e.target);
+        $("#myInput").attr("placeholder", $a.html());
+    });
+</script>
+
+
+{% endblock content %}

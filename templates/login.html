@@ -1,0 +1,46 @@
+<!-- THIS PAGE CONTAINS A FLASK FORM FOR LOGIN -->
+
+{% extends "layout.html" %}
+{% block content %}
+ <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+    <div class="content-section">
+        <form action="/" method="POST">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">כניסת משתמש</legend>
+                <div class="form-group p-2">
+                    {{ form.username.label(class="form-control-label") }}
+
+                    {% if form.username.errors %}
+                        {{ form.username(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.username.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.username(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group p-2">
+                    {{ form.password.label(class="form-control-label") }}
+
+                    {% if form.password.errors %}
+                        {{ form.password(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.password(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+
+            </fieldset>
+            <div class="form-group p-2" id="center-row">
+                {{ form.submit(class="btn btn-primary" )}}
+            </div>
+
+        </form>
+{% endblock content %}
